@@ -35,7 +35,7 @@ type Statement struct {
 
 func main() {
 	// Read the JSON file
-	jsonData, err := ioutil.ReadFile("ast.json")
+	jsonData, err := ioutil.ReadFile("program.json")
 	if err != nil {
 		fmt.Println("Error reading JSON file:", err)
 		return
