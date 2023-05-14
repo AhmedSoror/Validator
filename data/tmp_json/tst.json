@@ -1,0 +1,219 @@
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "FunctionDeclaration",
+            "id": {
+                "type": "Identifier",
+                "name": "summation"
+            },
+            "expression": false,
+            "params": [
+                {
+                    "type": "Identifier",
+                    "name": "x"
+                },
+                {
+                    "type": "Identifier",
+                    "name": "y"
+                }
+            ],
+            "body": {
+                "type": "BlockStatement",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "sum"
+                                },
+                                "init": null
+                            }
+                        ],
+                        "kind": "var"
+                    },
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "sum_squared"
+                                },
+                                "init": null
+                            }
+                        ],
+                        "kind": "var"
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                                "type": "Identifier",
+                                "name": "sum"
+                            },
+                            "right": {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                },
+                                "operator": "+",
+                                "right": {
+                                    "type": "Identifier",
+                                    "name": "y"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                                "type": "Identifier",
+                                "name": "sum_squared"
+                            },
+                            "right": {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "Identifier",
+                                    "name": "multiplication"
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "sum"
+                                    },
+                                    {
+                                        "type": "Identifier",
+                                        "name": "sum"
+                                    }
+                                ],
+                                "optional": false
+                            }
+                        }
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "Identifier",
+                                "name": "print"
+                            },
+                            "arguments": [
+                                {
+                                    "type": "Identifier",
+                                    "name": "sum"
+                                }
+                            ],
+                            "optional": false
+                        }
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "Identifier",
+                                "name": "print"
+                            },
+                            "arguments": [
+                                {
+                                    "type": "Identifier",
+                                    "name": "sum_squared"
+                                }
+                            ],
+                            "optional": false
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "FunctionDeclaration",
+            "id": {
+                "type": "Identifier",
+                "name": "multiplication"
+            },
+            "expression": false,
+            "params": [
+                {
+                    "type": "Identifier",
+                    "name": "x"
+                },
+                {
+                    "type": "Identifier",
+                    "name": "y"
+                }
+            ],
+            "body": {
+                "type": "BlockStatement",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "product"
+                                },
+                                "init": null
+                            }
+                        ],
+                        "kind": "var"
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                                "type": "Identifier",
+                                "name": "product"
+                            },
+                            "right": {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "Identifier",
+                                    "name": "product"
+                                },
+                                "operator": "*",
+                                "right": {
+                                    "type": "Identifier",
+                                    "name": "product"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "Identifier",
+                                "name": "print"
+                            },
+                            "arguments": [
+                                {
+                                    "type": "Identifier",
+                                    "name": "product"
+                                }
+                            ],
+                            "optional": false
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
