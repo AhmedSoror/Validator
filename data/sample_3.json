@@ -1,0 +1,101 @@
+{
+    "functions": [
+      {
+        "name": "main",
+        "body": {
+          "statements": [
+            {
+              "type": "block",
+              "block": {
+                "statements": [
+                  {
+                    "type": "variable_declaration",
+                    "variable": "x"
+                  },
+                  {
+                    "type": "operation",
+                    "operation_type": "assignment",
+                    "operands": ["x", "10"]
+                  },
+                  {
+                    "type": "function_call",
+                    "calls": "printNumber",
+                    "arguments": ["x"]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "function_call",
+              "calls": "calculateSum",
+              "arguments": ["x", "5"]
+            }
+          ]
+        }
+      },
+      {
+        "name": "printNumber",
+        "body": {
+          "statements": [
+            {
+              "type": "function_call",
+              "calls": "display",
+              "arguments": ["x"]
+            }
+          ]
+        }
+      },
+      {
+        "name": "calculateSum",
+        "body": {
+          "statements": [
+            {
+              "type": "variable_declaration",
+              "variable": "y"
+            },
+            {
+              "type": "operation",
+              "operation_type": "addition",
+              "operands": ["x", "y"],
+              "assign_to": "sum"
+            },
+            {
+              "type": "block",
+              "block": {
+                "statements": [
+                  {
+                    "type": "variable_declaration",
+                    "variable": "z"
+                  },
+                  {
+                    "type": "operation",
+                    "operation_type": "multiplication",
+                    "operands": ["sum", "z"],
+                    "assign_to": "product"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "function_call",
+              "calls": "printNumber",
+              "arguments": ["product"]
+            }
+          ]
+        }
+      },
+      {
+        "name": "display",
+        "body": {
+          "statements": [
+            {
+              "type": "operation",
+              "operation_type": "print",
+              "operands": ["value"]
+            }
+          ]
+        }
+      }
+    ]
+  }
+  
