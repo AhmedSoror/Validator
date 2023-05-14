@@ -1,34 +1,41 @@
 {
-  "functions": [
-    {
-      "name": "main",
-      "body": {
-        "statements": [
-          {
-            "type": "function_call",
-            "calls": "myFunction",
-            "arguments": []
-          }
-        ]
-      }
-    },
-    {
-      "name": "myFunction",
-      "body": {
-        "statements": [
-          {
-            "type": "operation",
-            "operation_type": "multiplication",
-            "operands": ["3", "4"],
-            "assign_to": "result"
-          },
-          {
-            "type": "function_call",
-            "calls": "print",
-            "arguments": ["result"]
-          }
-        ]
-      }
-    }
-  ]
+    "functions": [
+        {
+            "name": "main",
+            "arguments": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "function_call",
+                        "calls": "myFunction",
+                        "arguments": []
+                    }
+                ]
+            }
+        },
+        {
+            "name": "myFunction",
+            "arguments": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "operation",
+                        "operation_type": "multiplication",
+                        "operands": [
+                            "3",
+                            "4"
+                        ],
+                        "assign_to": "result"
+                    },
+                    {
+                        "type": "function_call",
+                        "calls": "print",
+                        "arguments": [
+                            "result"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
 }
