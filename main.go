@@ -7,8 +7,9 @@ import (
 	"strconv"
 )
 
+// -----------------------------------------
 // Define the structure for the AST representation
-
+// -----------------------------------------
 // Program represents the top-level structure of the program.
 type Program struct {
 	// A program contains one or more function declarations.
@@ -50,6 +51,10 @@ type Statement struct {
 	Parameters       []string `json:"arguments,omitempty"`       // List of function call parameters
 	AssignTo         string   `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
 }
+
+// -----------------------------------------
+// Validate a program
+// -----------------------------------------
 
 func isValidOperand(operand string, varMap map[string]bool) bool {
 	if _, err := strconv.Atoi(operand); err != nil && !varMap[operand] {
@@ -154,6 +159,65 @@ func VerifyProgramRec(program Program) bool {
 	return true
 }
 
+// -----------------------------------------
+// list declared but unused variables
+// -----------------------------------------
+
+func findUnusedVariables(program Program) []string {
+	declaredVariables := make(map[string]bool)
+	usedVariables := make(map[string]bool)
+
+	// Traverse each function in the program to get all used variables
+	for _, function := range program.Functions {
+		traverseBlock(function.Body, declaredVariables, usedVariables)
+	}
+
+	unusedVariables := []string{}
+
+	// Check for unused variables
+	for variable := range declaredVariables {
+		if !usedVariables[variable] {
+			unusedVariables = append(unusedVariables, variable)
+		}
+	}
+
+	return unusedVariables
+}
+
+func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables map[string]bool) {
+	// Traverse each statement in the block
+	for _, statement := range block.Statements {
+		switch statement.Type {
+		case "variable_declaration":
+			declaredVariables[statement.DeclaredVariable] = true
+		case "operation":
+			for _, operand := range statement.Operands {
+				// TODO: check on the operand type to ensure it's a var
+				usedVariables[operand] = true
+			}
+			if statement.AssignTo != "" {
+				usedVariables[statement.AssignTo] = true
+			}
+		case "function_call":
+			for _, param := range statement.Parameters {
+				usedVariables[param] = true
+			}
+			if statement.AssignTo != "" {
+				usedVariables[statement.AssignTo] = true
+			}
+		case "block":
+			traverseBlock(statement.Block, declaredVariables, usedVariables)
+		}
+	}
+}
+
+// -----------------------------------------
+// list functions dependancies
+// -----------------------------------------
+
+// -----------------------------------------
+// main function
+// -----------------------------------------
 func main() {
 	// Read the JSON file
 	jsonData, err := ioutil.ReadFile("./data/valid/sample_3.json")
