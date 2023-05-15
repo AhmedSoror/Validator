@@ -35,7 +35,7 @@
                         "type": "function_call",
                         "calls": "calculateSum",
                         "arguments": [
-                            "x",
+                            "2",
                             "5"
                         ]
                     }
@@ -69,7 +69,7 @@
                 "statements": [
                     {
                         "type": "variable_declaration",
-                        "variable": "y"
+                        "variable": "sum"
                     },
                     {
                         "type": "operation",
@@ -78,7 +78,7 @@
                             "a",
                             "3"
                         ],
-                        "assign_to": "y"
+                        "assign_to": "sum"
                     },
                     {
                         "type": "block",
@@ -87,6 +87,18 @@
                                 {
                                     "type": "variable_declaration",
                                     "variable": "z"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        "z",
+                                        "5"
+                                    ]
+                                },
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "product"
                                 },
                                 {
                                     "type": "operation",
