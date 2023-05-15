@@ -1,0 +1,30 @@
+{
+    "functions": [
+      {
+        "name": "myFunction",
+        "arguments": ["arg1", "arg2"],
+        "body": {
+          "statements": [
+            {
+              "type": "block",
+              "block": {
+                "statements": [
+                  {
+                    "type": "variable_declaration",
+                    "variable": "result"
+                  },
+                  {
+                    "type": "operation",
+                    "operation_type": "addition",
+                    "operands": ["arg1", "arg2"],
+                    "assign_to": ""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+  
