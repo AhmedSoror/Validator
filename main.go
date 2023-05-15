@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strconv"
 )
 
@@ -195,16 +197,16 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 				// TODO: check on the operand type to ensure it's a var
 				usedVariables[operand] = true
 			}
-			if statement.AssignTo != "" {
-				usedVariables[statement.AssignTo] = true
-			}
+			// if statement.AssignTo != "" {
+			// 	usedVariables[statement.AssignTo] = true
+			// }
 		case "function_call":
 			for _, param := range statement.Parameters {
 				usedVariables[param] = true
 			}
-			if statement.AssignTo != "" {
-				usedVariables[statement.AssignTo] = true
-			}
+			// if statement.AssignTo != "" {
+			// 	usedVariables[statement.AssignTo] = true
+			// }
 		case "block":
 			traverseBlock(statement.Block, declaredVariables, usedVariables)
 		}
@@ -219,11 +221,26 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 // main function
 // -----------------------------------------
 func main() {
+	// read arguments from command line
+	filePath := flag.String("file", "", "Path to the JSON file")
+	mode := flag.String("mode", "", "Mode of operation")
+	flag.Parse()
+
+	// Validate command line arguments
+	if *filePath == "" {
+		fmt.Println("File path is required.")
+		os.Exit(1)
+	}
+	if *mode == "" {
+		fmt.Println("Mode is required.")
+		os.Exit(1)
+	}
+
 	// Read the JSON file
-	jsonData, err := ioutil.ReadFile("./data/valid/sample_3.json")
+	jsonData, err := ioutil.ReadFile(*filePath)
 	if err != nil {
 		fmt.Println("Error reading JSON file:", err)
-		return
+		os.Exit(1)
 	}
 
 	// Parse the JSON into the AST structure
@@ -237,9 +254,18 @@ func main() {
 	// Print the parsed AST
 	// fmt.Printf("%v\n", program)
 
-	// Verify the program
-	isValid := VerifyProgramRec(program)
-	fmt.Println("Program is valid:", isValid)
+	switch *mode {
+	case "verify":
+		// Verify the program
+		isValid := VerifyProgramRec(program)
+		fmt.Println("Is program valid?", isValid)
+
+	case "unused_variables":
+		unusedVariables := findUnusedVariables(program)
+		fmt.Println("unusedVariables: ", unusedVariables)
+	default:
+		fmt.Println("Please enter a valid mode")
+	}
 }
 
 /*
