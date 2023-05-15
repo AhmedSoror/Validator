@@ -23,7 +23,7 @@
                                 },
                                 {
                                     "type": "function_call",
-                                    "calls": "printNumber",
+                                    "called_function": "printNumber",
                                     "arguments": [
                                         "x"
                                     ]
@@ -33,7 +33,7 @@
                     },
                     {
                         "type": "function_call",
-                        "calls": "calculateSum",
+                        "called_function": "calculateSum",
                         "arguments": [
                             "2",
                             "5"
@@ -51,7 +51,7 @@
                 "statements": [
                     {
                         "type": "function_call",
-                        "calls": "display",
+                        "called_function": "display",
                         "arguments": [
                             "num"
                         ]
@@ -114,7 +114,7 @@
                     },
                     {
                         "type": "function_call",
-                        "calls": "printNumber",
+                        "called_function": "printNumber",
                         "arguments": [
                             "product"
                         ]

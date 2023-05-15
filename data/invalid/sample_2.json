@@ -7,7 +7,7 @@
                 "statements": [
                     {
                         "type": "function_call",
-                        "calls": "myFunction",
+                        "called_function": "myFunction",
                         "arguments": []
                     }
                 ]
@@ -29,7 +29,7 @@
                     },
                     {
                         "type": "function_call",
-                        "calls": "undefinedFunction",
+                        "called_function": "undefinedFunction",
                         "arguments": [
                             "result"
                         ]
