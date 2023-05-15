@@ -11,18 +11,13 @@
                 "statements": [
                   {
                     "type": "variable_declaration",
-                    "variable": "x"
+                    "variable": "result"
                   },
                   {
                     "type": "operation",
                     "operation_type": "addition",
-                    "operands": ["x", "arg1"],
+                    "operands": ["arg1", "arg2"],
                     "assign_to": "result"
-                  },
-                  {
-                    "type": "function_call",
-                    "calls": "print",
-                    "arguments": ["result"]
                   }
                 ]
               }

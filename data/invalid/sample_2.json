@@ -29,7 +29,7 @@
                     },
                     {
                         "type": "function_call",
-                        "calls": "print",
+                        "calls": "undefinedFunction",
                         "arguments": [
                             "result"
                         ]
