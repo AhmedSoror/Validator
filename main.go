@@ -28,7 +28,7 @@ type Function struct {
 	Name      string   `json:"name"`      // Name of the function
 	Arguments []string `json:"arguments"` // List of function arguments
 	Body      Block    `json:"body"`      // Function body
-	// Calls     []string `json:"calls"`     // List of function calls
+	// CalledFunction     []string `json:"called_function"`     // List of function calls
 	// Declared  []string `json:"declared"`  // List of declared variables
 
 }
@@ -41,50 +41,84 @@ type Block struct {
 
 // Statement represents an individual statement.
 type Statement struct {
-	Type             string   `json:"type"`                     // Type of statement (block, variable_declaration, operation, function_call)
-	DeclaredVariable string   `json:"variable,omitempty"`       // declared variable
-	Block            Block    `json:"block,omitempty"`          // Nested block
-	OperationType    string   `json:"operation_type,omitempty"` // Type of operation (e.g., addition, multiplication)
-	Operands         []string `json:"Operands,omitempty"`       // List of variable used as Operands
-	Calls            string   `json:"calls,omitempty"`          // function call
-	Parameters       []string `json:"arguments,omitempty"`      // List of function call parameters
-	AssignTo         string   `json:"assign_to,omitempty"`      // Variable to assign the result of an operation
+	Type             string   `json:"type"`                      // Type of statement (block, variable_declaration, operation, function_call)
+	DeclaredVariable string   `json:"variable,omitempty"`        // declared variable
+	Block            Block    `json:"block,omitempty"`           // Nested block
+	OperationType    string   `json:"operation_type,omitempty"`  // Type of operation (e.g., addition, multiplication)
+	Operands         []string `json:"Operands,omitempty"`        // List of variable used as Operands
+	CalledFunction   string   `json:"called_function,omitempty"` // function call
+	Parameters       []string `json:"arguments,omitempty"`       // List of function call parameters
+	AssignTo         string   `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
+}
+
+func isValidOperand(operand string, varMap map[string]bool) bool {
+	if _, err := strconv.Atoi(operand); err != nil && !varMap[operand] {
+		return false
+	}
+	return true
 }
 
 func validateBlock(block Block, functionMap map[string]bool, varMap map[string]bool) bool {
+	/*
+		INFO: function to recursively validate a block. Conditions for validity:
+				a. A function call must call a function that is declared in the same file.
+				b. A variable can only be used in operations if it has been declared in a previous statement of the same block,
+				or in case it has been declared in one of the previous statements of a surrounding block.
+		:params
+			- block Block: a block from the program
+			- functionMap map[string]bool: map contains defined functions, acts as set
+			- varMap map[string]bool: map contains variables from bigger scope passed to this block
+		:returns
+			- boolean to indicate whether the block is valide or not as defined
+
+	*/
 	for _, statement := range block.Statements {
 		switch statement.Type {
 		case "block":
 			if !validateBlock(statement.Block, functionMap, varMap) {
+				fmt.Println("Invalid block: ", statement.Block)
 				return false
 			}
 		case "variable_declaration":
 			if _, ok := varMap[statement.DeclaredVariable]; ok {
+				fmt.Println("Invalid variable declaration: ", statement.DeclaredVariable)
 				return false
 			}
 			varMap[statement.DeclaredVariable] = true
 		case "operation":
 			for _, operand := range statement.Operands {
-				// if _, ok := varMap[operand]; !ok
-				if _, err := strconv.Atoi(operand); err != nil && !varMap[operand] {
+				if !isValidOperand(operand, varMap) {
+					fmt.Println("Invalid operand", operand)
 					return false
 				}
 			}
-			if !varMap[statement.AssignTo] {
+			if statement.AssignTo != "" && !varMap[statement.AssignTo] {
+				// check if there is a var to assign to and that variable is already declared
+				fmt.Println("Invalid assignee, var not declared: ", statement.AssignTo)
 				return false
 			}
 			if statement.AssignTo != "" {
+				// TODO: instead of setting the assignee as true in varMap, it should be done in the assignmentMap
 				varMap[statement.AssignTo] = true
 			}
 		case "function_call":
-			if _, ok := functionMap[statement.Calls]; !ok {
+			if _, ok := functionMap[statement.CalledFunction]; !ok {
+				fmt.Println("Invalid function call due to calling undefined function: ", statement.CalledFunction)
 				return false
 			}
 			for _, param := range statement.Parameters {
-				if _, ok := varMap[param]; !ok {
+				if !isValidOperand(param, varMap) {
+					fmt.Println("Invalid function call due to undeclared parameter: ", param)
 					return false
 				}
 			}
+			// TODO: revisit the next assignment part as it should be handled in operations and not here
+			if statement.AssignTo != "" && !varMap[statement.AssignTo] {
+				// check if there is a var to assign to and that variable is already declared
+				fmt.Println("Invalid assignee after function call, var not declared: ", statement.AssignTo)
+				return false
+			}
+
 			if statement.AssignTo != "" {
 				varMap[statement.AssignTo] = true
 			}
@@ -137,9 +171,16 @@ func main() {
 	}
 
 	// Print the parsed AST
-	fmt.Printf("%v\n", program)
+	// fmt.Printf("%v\n", program)
 
 	// Verify the program
 	isValid := VerifyProgramRec(program)
 	fmt.Println("Program is valid:", isValid)
 }
+
+/*
+TODO:
+1- function caalls with a var: var must be assigned first
+2- operands in operations doesn't need to be strings, could be function as well
+
+*/
