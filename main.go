@@ -216,6 +216,27 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 // -----------------------------------------
 // list functions dependancies
 // -----------------------------------------
+func findFunctionCalls(program Program) map[string][]string {
+	functionCalls := make(map[string][]string)
+
+	// Iterate over each function in the program and populate functionCalls map
+	for _, function := range program.Functions {
+		getFunctionCallsRecursively(function.Body.Statements, function.Name, functionCalls)
+	}
+
+	return functionCalls
+}
+
+func getFunctionCallsRecursively(statements []Statement, currentFunction string, functionCalls map[string][]string) {
+	// Traverse each statement in the function body
+	for _, statement := range statements {
+		if statement.Type == "function_call" {
+			functionCalls[currentFunction] = append(functionCalls[currentFunction], statement.CalledFunction)
+		} else if statement.Type == "block" {
+			getFunctionCallsRecursively(statement.Block.Statements, currentFunction, functionCalls)
+		}
+	}
+}
 
 // -----------------------------------------
 // main function
@@ -263,6 +284,9 @@ func main() {
 	case "unused_variables":
 		unusedVariables := findUnusedVariables(program)
 		fmt.Println("unusedVariables: ", unusedVariables)
+	case "functions_dependancies":
+		functions_dependancies := findFunctionCalls(program)
+		fmt.Println("functions_dependancies: ", functions_dependancies)
 	default:
 		fmt.Println("Please enter a valid mode")
 	}
