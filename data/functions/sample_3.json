@@ -2,7 +2,7 @@
     "functions": [
         {
             "name": "func_1",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -32,7 +32,7 @@
         },
         {
             "name": "func_2",
-            "arguments": [
+            "parameters": [
                 "num"
             ],
             "body": {
@@ -49,7 +49,7 @@
         },
         {
             "name": "func_3",
-            "arguments": [
+            "parameters": [
                 "a",
                 "b"
             ],
@@ -81,7 +81,7 @@
         },
         {
             "name": "func_4",
-            "arguments": [
+            "parameters": [
                 "value"
             ],
             "body": {
@@ -97,7 +97,7 @@
         },
         {
             "name": "func_5",
-            "arguments": [
+            "parameters": [
                 "value"
             ],
             "body": {

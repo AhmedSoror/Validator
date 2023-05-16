@@ -2,7 +2,7 @@
     "functions": [
       {
         "name": "myFunction",
-        "arguments": ["arg1", "arg2"],
+        "parameters": ["arg1", "arg2"],
         "body": {
           "statements": [
             {

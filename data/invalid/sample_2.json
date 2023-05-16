@@ -2,7 +2,7 @@
     "functions": [
         {
             "name": "main",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -15,7 +15,7 @@
         },
         {
             "name": "myFunction",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {

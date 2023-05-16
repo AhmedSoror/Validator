@@ -2,7 +2,7 @@
     "functions": [
         {
             "name": "main",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -44,7 +44,7 @@
         },
         {
             "name": "printNumber",
-            "arguments": [
+            "parameters": [
                 "num"
             ],
             "body": {
@@ -61,7 +61,7 @@
         },
         {
             "name": "calculateSum",
-            "arguments": [
+            "parameters": [
                 "a",
                 "b"
             ],
@@ -112,7 +112,7 @@
         },
         {
             "name": "display",
-            "arguments": [
+            "parameters": [
                 "value"
             ],
             "body": {
