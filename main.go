@@ -372,5 +372,5 @@ func main() {
 TODO:
 1- function caalls with a var: var must be assigned first
 2- operands in operations doesn't need to be strings, could be function as well
-
+3- include unit tests for implemented functions
 */
