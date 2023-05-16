@@ -29,9 +29,9 @@ type Function struct {
 			- function calls
 			- declared variables in the function
 	*/
-	Name      string   `json:"name"`      // Name of the function
-	Arguments []string `json:"arguments"` // List of function arguments
-	Body      Block    `json:"body"`      // Function body
+	Name       string   `json:"name"`       // Name of the function
+	Parameters []string `json:"parameters"` // List of function arguments
+	Body       Block    `json:"body"`       // Function body
 	// CalledFunction     []string `json:"called_function"`     // List of function calls
 	// Declared  []string `json:"declared"`  // List of declared variables
 
@@ -51,7 +51,7 @@ type Statement struct {
 	OperationType    string   `json:"operation_type,omitempty"`  // Type of operation (e.g., addition, multiplication)
 	Operands         []string `json:"Operands,omitempty"`        // List of variable used as Operands
 	CalledFunction   string   `json:"called_function,omitempty"` // function call
-	Parameters       []string `json:"arguments,omitempty"`       // List of function call parameters
+	Arguments        []string `json:"arguments,omitempty"`       // List of function call parameters
 	AssignTo         string   `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
 }
 
@@ -152,7 +152,7 @@ func validateBlock(block Block, functionMap map[string]bool, varMap map[string]b
 				fmt.Println("Invalid function call due to calling undefined function: ", statement.CalledFunction)
 				return false
 			}
-			for _, param := range statement.Parameters {
+			for _, param := range statement.Arguments {
 				if !isValidOperand(param, varMap) {
 					fmt.Println("Invalid function call due to undeclared parameter: ", param)
 					return false
@@ -189,7 +189,7 @@ func VerifyProgramRec(program Program) bool {
 	// for each function, init var map and calidate the function body
 	for _, function := range program.Functions {
 		varMap := make(map[string]bool)
-		for _, arg := range function.Arguments {
+		for _, arg := range function.Parameters {
 			varMap[arg] = true
 		}
 		if !validateBlock(function.Body, functionMap, varMap) {
@@ -240,7 +240,7 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 			// 	usedVariables[statement.AssignTo] = true
 			// }
 		case "function_call":
-			for _, param := range statement.Parameters {
+			for _, param := range statement.Arguments {
 				usedVariables[param] = true
 			}
 			// if statement.AssignTo != "" {
