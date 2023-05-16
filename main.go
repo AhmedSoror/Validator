@@ -50,7 +50,7 @@ type Statement struct {
 	Operands       []Statement `json:"Operands,omitempty"`        // List of variable used as Operands
 	CalledFunction string      `json:"called_function,omitempty"` // function call
 	Arguments      []Statement `json:"arguments,omitempty"`       // List of function call arguments
-	AssignTo       string      `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
+	// AssignTo       string      `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
 }
 
 // --------------------------
@@ -248,7 +248,7 @@ func findUnusedVariables(program Program) []string {
 
 	// Traverse each function in the program to get all used variables
 	for _, function := range program.Functions {
-		traverseBlock(function.Body, declaredVariables, usedVariables)
+		populateUsedVariablesInBlock(function.Body, declaredVariables, usedVariables)
 	}
 
 	unusedVariables := []string{}
@@ -263,7 +263,7 @@ func findUnusedVariables(program Program) []string {
 	return unusedVariables
 }
 
-func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables map[string]bool) {
+func populateUsedVariablesInBlock(block Block, declaredVariables map[string]bool, usedVariables map[string]bool) {
 	// Traverse each statement in the block
 	for _, statement := range block.Statements {
 		switch statement.Type {
@@ -273,7 +273,7 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 			for _, operand := range statement.Operands {
 				// TODO: check on the operand type to ensure it's a var
 				if operand.Type == "variable" {
-					usedVariables[operand.Value] = true
+					usedVariables[operand.Variable] = true
 				}
 			}
 			// if statement.AssignTo != "" {
@@ -282,14 +282,14 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 		case "function_call":
 			for _, arg := range statement.Arguments {
 				if arg.Type == "variable" {
-					usedVariables[arg.Value] = true
+					usedVariables[arg.Variable] = true
 				}
 			}
 			// if statement.AssignTo != "" {
 			// 	usedVariables[statement.AssignTo] = true
 			// }
 		case "block":
-			traverseBlock(statement.Block, declaredVariables, usedVariables)
+			populateUsedVariablesInBlock(statement.Block, declaredVariables, usedVariables)
 		}
 	}
 }
@@ -321,10 +321,19 @@ func getFunctionCallsRecursively(statements []Statement, currentFunction string,
 	functionCalls[currentFunction] = append(functionCalls[currentFunction], emptyList...)
 	// Traverse each statement in the function body
 	for _, statement := range statements {
-		if statement.Type == "function_call" {
-			functionCalls[currentFunction] = append(functionCalls[currentFunction], statement.CalledFunction)
-		} else if statement.Type == "block" {
-			getFunctionCallsRecursively(statement.Block.Statements, currentFunction, functionCalls)
+		switch statement.Type {
+
+		case "function_call":
+			{
+				functionCalls[currentFunction] = append(functionCalls[currentFunction], statement.CalledFunction)
+				getFunctionCallsRecursively(statement.Arguments, currentFunction, functionCalls)
+			}
+		case "block":
+			{
+				getFunctionCallsRecursively(statement.Block.Statements, currentFunction, functionCalls)
+			}
+		case "operation":
+			getFunctionCallsRecursively(statement.Operands, currentFunction, functionCalls)
 		}
 	}
 }
@@ -423,7 +432,6 @@ func main() {
 /*
 TODO:
 1- function caalls with a var: var must be assigned first
-2- operands in operations doesn't need to be strings, could be function as well
 3- include unit tests for implemented functions
 4- Consistent code documentation
 5- Consistent conventions
