@@ -2,7 +2,7 @@
     "functions": [
         {
             "name": "main",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -15,7 +15,7 @@
         },
         {
             "name": "myFunction",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -26,8 +26,14 @@
                         "type": "operation",
                         "operation_type": "multiplication",
                         "operands": [
-                            "3",
-                            "4"
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "4"
+                            }
                         ],
                         "assign_to": "result"
                     }

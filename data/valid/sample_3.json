@@ -2,7 +2,7 @@
     "functions": [
         {
             "name": "main",
-            "arguments": [],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -17,15 +17,24 @@
                                     "type": "operation",
                                     "operation_type": "assignment",
                                     "operands": [
-                                        "x",
-                                        "10"
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "10"
+                                        }
                                     ]
                                 },
                                 {
                                     "type": "function_call",
                                     "called_function": "printNumber",
                                     "arguments": [
-                                        "x"
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        }
                                     ]
                                 }
                             ]
@@ -35,8 +44,38 @@
                         "type": "function_call",
                         "called_function": "calculateSum",
                         "arguments": [
-                            "2",
-                            "5"
+                            {
+                                "type": "numerical",
+                                "value": "2"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "10"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "operation",
+                        "operation_type": "assignment",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "x"
+                            },
+                            {
+                                "type": "function_call",
+                                "called_function": "calculateSum",
+                                "arguments": [
+                                    {
+                                        "type": "numerical",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "type": "numerical",
+                                        "value": "10"
+                                    }
+                                ]
+                            }
                         ]
                     }
                 ]
@@ -44,7 +83,7 @@
         },
         {
             "name": "printNumber",
-            "arguments": [
+            "parameters": [
                 "num"
             ],
             "body": {
@@ -53,7 +92,10 @@
                         "type": "function_call",
                         "called_function": "display",
                         "arguments": [
-                            "num"
+                            {
+                                "type": "variable",
+                                "variable": "num"
+                            }
                         ]
                     }
                 ]
@@ -61,7 +103,7 @@
         },
         {
             "name": "calculateSum",
-            "arguments": [
+            "parameters": [
                 "a",
                 "b"
             ],
@@ -75,10 +117,15 @@
                         "type": "operation",
                         "operation_type": "addition",
                         "operands": [
-                            "a",
-                            "3"
-                        ],
-                        "assign_to": "sum"
+                            {
+                                "type": "variable",
+                                "variable": "a"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            }
+                        ]
                     },
                     {
                         "type": "block",
@@ -92,8 +139,14 @@
                                     "type": "operation",
                                     "operation_type": "assignment",
                                     "operands": [
-                                        "z",
-                                        "5"
+                                        {
+                                            "type": "variable",
+                                            "variable": "z"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "5"
+                                        }
                                     ]
                                 },
                                 {
@@ -102,12 +155,27 @@
                                 },
                                 {
                                     "type": "operation",
-                                    "operation_type": "multiplication",
+                                    "operation_type": "assignment",
                                     "operands": [
-                                        "sum",
-                                        "z"
-                                    ],
-                                    "assign_to": "product"
+                                        {
+                                            "type": "variable",
+                                            "variable": "product"
+                                        },
+                                        {
+                                            "type": "operation",
+                                            "operation_type": "multiplication",
+                                            "operands": [
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "sum"
+                                                },
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "z"
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 }
                             ]
                         }
@@ -116,7 +184,10 @@
                         "type": "function_call",
                         "called_function": "printNumber",
                         "arguments": [
-                            "product"
+                            {
+                                "type": "variable",
+                                "variable": "product"
+                            }
                         ]
                     }
                 ]
@@ -124,7 +195,7 @@
         },
         {
             "name": "display",
-            "arguments": [
+            "parameters": [
                 "value"
             ],
             "body": {
