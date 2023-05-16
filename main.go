@@ -12,6 +12,7 @@ import (
 // -----------------------------------------
 // Define the structure for the AST representation
 // -----------------------------------------
+
 // Program represents the top-level structure of the program.
 type Program struct {
 	// A program contains one or more function declarations.
@@ -86,6 +87,15 @@ func (s set) append(other set) {
 // -----------------------------------------
 // Validate a program
 // -----------------------------------------
+/*
+	The conditions for a program to be valid are:
+		a. A function call must call a function that is declared in the same file.
+		b. A variable can only be used in operations if it has been declared in a previous statement of the same block,
+		or in case it has been declared in one of the previous statements of a surrounding block.
+
+	Added conditions:
+		-
+*/
 
 func isValidOperand(operand string, varMap map[string]bool) bool {
 	if _, err := strconv.Atoi(operand); err != nil && !varMap[operand] {
@@ -366,6 +376,7 @@ func main() {
 	default:
 		fmt.Println("Please enter a valid mode")
 	}
+
 }
 
 /*
