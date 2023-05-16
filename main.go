@@ -42,21 +42,15 @@ type Block struct {
 
 // Statement represents an individual statement.
 type Statement struct {
-	Type             string    `json:"type"`                      // Type of statement (block, variable_declaration, operation, function_call)
-	DeclaredVariable string    `json:"variable,omitempty"`        // declared variable
-	Block            Block     `json:"block,omitempty"`           // Nested block
-	OperationType    string    `json:"operation_type,omitempty"`  // Type of operation (e.g., addition, multiplication)
-	Operands         []Operand `json:"Operands,omitempty"`        // List of variable used as Operands
-	CalledFunction   string    `json:"called_function,omitempty"` // function call
-	Arguments        []Operand `json:"arguments,omitempty"`       // List of function call arguments
-	AssignTo         string    `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
-}
-
-type Operand struct {
-	// Type of the operand ["operation", "numerical", "variable", "function"]
-	Type      string    `json:"type"`
-	Value     string    `json:"value,omitempty"`
-	Statement Statement `json:"body,omitempty"`
+	Type           string      `json:"type"`                      // Type of statement (block, variable_declaration, operation, function_call)
+	Value          string      `json:"value,omitempty"`           // declared variable
+	Variable       string      `json:"variable,omitempty"`        // declared variable
+	Block          Block       `json:"block,omitempty"`           // Nested block
+	OperationType  string      `json:"operation_type,omitempty"`  // Type of operation (e.g., addition, multiplication)
+	Operands       []Statement `json:"Operands,omitempty"`        // List of variable used as Operands
+	CalledFunction string      `json:"called_function,omitempty"` // function call
+	Arguments      []Statement `json:"arguments,omitempty"`       // List of function call arguments
+	AssignTo       string      `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
 }
 
 // --------------------------
@@ -100,7 +94,7 @@ func (s set) append(other set) {
 	Added conditions:
 		-
 */
-func isValidFunctionCall(functionName string, arguments []Operand, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
+func isValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
 	// to validate a function:
 	// - function is already declared
 	if !declaredFunctionsMap[functionName] {
@@ -117,7 +111,7 @@ func isValidFunctionCall(functionName string, arguments []Operand, declaredFunct
 	return true
 }
 
-func isValidOperand(operand Operand, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
+func isValidOperand(operand Statement, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
 
 	switch operand.Type {
 	case "numerical":
@@ -126,14 +120,14 @@ func isValidOperand(operand Operand, declaredFunctionsMap map[string]bool, decla
 			return false
 		}
 	case "variable":
-		if !declaredVarMap[operand.Value] {
-			fmt.Printf("Invalid operand, variable: %v is not declared\n", operand.Value)
+		if !declaredVarMap[operand.Variable] {
+			fmt.Printf("Invalid operand, variable: %v is not declared\n", operand.Variable)
 			return false
 		}
 	case "function_call":
 	case "operation":
-		if !isValidStatement(operand.Statement, declaredFunctionsMap, declaredVarMap) {
-			fmt.Printf("Invalid operand, function: %v is not declared\n", operand.Statement)
+		if !isValidStatement(operand, declaredFunctionsMap, declaredVarMap) {
+			fmt.Println("Invalid operand, due to invalid statement:", operand)
 			return false
 		}
 	default:
@@ -158,11 +152,11 @@ func isValidStatement(statement Statement, declaredFunctionsMap map[string]bool,
 			return false
 		}
 	case "variable_declaration":
-		if _, ok := declaredVarMap[statement.DeclaredVariable]; ok {
-			fmt.Println("Invalid variable declaration: ", statement.DeclaredVariable, " variable already declared")
+		if _, ok := declaredVarMap[statement.Variable]; ok {
+			fmt.Println("Invalid variable declaration: ", statement.Variable, " variable already declared")
 			return false
 		}
-		declaredVarMap[statement.DeclaredVariable] = true
+		declaredVarMap[statement.Variable] = true
 	case "operation":
 		for _, operand := range statement.Operands {
 			if !isValidOperand(operand, declaredFunctionsMap, declaredVarMap) {
@@ -274,7 +268,7 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 	for _, statement := range block.Statements {
 		switch statement.Type {
 		case "variable_declaration":
-			declaredVariables[statement.DeclaredVariable] = true
+			declaredVariables[statement.Variable] = true
 		case "operation":
 			for _, operand := range statement.Operands {
 				// TODO: check on the operand type to ensure it's a var
