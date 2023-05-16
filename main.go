@@ -32,9 +32,6 @@ type Function struct {
 	Name       string   `json:"name"`       // Name of the function
 	Parameters []string `json:"parameters"` // List of function arguments
 	Body       Block    `json:"body"`       // Function body
-	// CalledFunction     []string `json:"called_function"`     // List of function calls
-	// Declared  []string `json:"declared"`  // List of declared variables
-
 }
 
 // Block represents a block of statements.
@@ -56,9 +53,10 @@ type Statement struct {
 }
 
 type Operand struct {
-	Type      string    `json:"type"` // Type of the operand (e.g., "numerical", "variable", "function")
-	Value     string    `json:"value"`
-	Arguments []Operand `json:"arguments,omitempty"` // List of arguments for a function operand
+	// Type of the operand ["operation", "numerical", "variable", "function"]
+	Type      string    `json:"type"`
+	Value     string    `json:"value,omitempty"`
+	Statement Statement `json:"body,omitempty"`
 }
 
 // --------------------------
@@ -132,22 +130,77 @@ func isValidOperand(operand Operand, declaredFunctionsMap map[string]bool, decla
 			fmt.Printf("Invalid operand, variable: %v is not declared\n", operand.Value)
 			return false
 		}
-	case "function":
-		if !isValidFunctionCall(operand.Value, operand.Arguments, declaredFunctionsMap, declaredVarMap) {
-			fmt.Printf("Invalid operand, function: %v is not declared\n", operand.Value)
+	case "function_call":
+	case "operation":
+		if !isValidStatement(operand.Statement, declaredFunctionsMap, declaredVarMap) {
+			fmt.Printf("Invalid operand, function: %v is not declared\n", operand.Statement)
 			return false
 		}
+	default:
+		fmt.Println("Invalid operation operand type: ", operand.Type)
+		return false
 	}
 
 	return true
 }
 
+func isValidStatement(statement Statement, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
+	/*
+		 Conditions for validity:
+			a. A function call must call a function that is declared in the same file.
+			b. A variable can only be used in operations if it has been declared in a previous statement of the same block,
+			or in case it has been declared in one of the previous statements of a surrounding block.
+	*/
+	switch statement.Type {
+	case "block":
+		if !verifyBlock(statement.Block, declaredFunctionsMap, declaredVarMap) {
+			fmt.Println("Invalid block: ", statement.Block)
+			return false
+		}
+	case "variable_declaration":
+		if _, ok := declaredVarMap[statement.DeclaredVariable]; ok {
+			fmt.Println("Invalid variable declaration: ", statement.DeclaredVariable, " variable already declared")
+			return false
+		}
+		declaredVarMap[statement.DeclaredVariable] = true
+	case "operation":
+		for _, operand := range statement.Operands {
+			if !isValidOperand(operand, declaredFunctionsMap, declaredVarMap) {
+				// fmt.Println("Invalid operand", operand)
+				fmt.Println("declaredVarMap", declaredVarMap)
+				return false
+			}
+		}
+		// TODO: set assigned variables in a map to be used for verification
+
+		// check if there is a var to assign to and that variable is already declared
+		// if statement.AssignTo != "" {
+		// 	if !declaredVarMap[statement.AssignTo] {
+		// 		fmt.Println("Invalid assignee, var not declared: ", statement.AssignTo)
+		// 		return false
+		// 	}
+		// 	declaredVarMap[statement.AssignTo] = true
+		// }
+	case "function_call":
+		if !isValidFunctionCall(statement.CalledFunction, statement.Arguments, declaredFunctionsMap, declaredVarMap) {
+			return false
+		}
+
+		// // TODO: revisit the next assignment part as it should be handled in operations and not here
+		// if statement.AssignTo != "" {
+		// 	if !declaredVarMap[statement.AssignTo] {
+		// 		// check if there is a var to assign to and that variable is already declared
+		// 		fmt.Println("Invalid assignee after function call, var not declared: ", statement.AssignTo)
+		// 		return false
+		// 	}
+		// 	declaredVarMap[statement.AssignTo] = true
+		// }
+	}
+	return true
+}
 func verifyBlock(block Block, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
 	/*
-		INFO: function to recursively validate a block. Conditions for validity:
-				a. A function call must call a function that is declared in the same file.
-				b. A variable can only be used in operations if it has been declared in a previous statement of the same block,
-				or in case it has been declared in one of the previous statements of a surrounding block.
+		INFO: function to recursively validate a block.
 		:params
 			- block Block: a block from the program
 			- functionMap map[string]bool: map contains defined functions, acts as set
@@ -157,49 +210,8 @@ func verifyBlock(block Block, declaredFunctionsMap map[string]bool, declaredVarM
 
 	*/
 	for _, statement := range block.Statements {
-		switch statement.Type {
-		case "block":
-			if !verifyBlock(statement.Block, declaredFunctionsMap, declaredVarMap) {
-				fmt.Println("Invalid block: ", statement.Block)
-				return false
-			}
-		case "variable_declaration":
-			if _, ok := declaredVarMap[statement.DeclaredVariable]; ok {
-				fmt.Println("Invalid variable declaration: ", statement.DeclaredVariable, " variable already declared")
-				return false
-			}
-			declaredVarMap[statement.DeclaredVariable] = true
-		case "operation":
-			for _, operand := range statement.Operands {
-				if !isValidOperand(operand, declaredFunctionsMap, declaredVarMap) {
-					// fmt.Println("Invalid operand", operand)
-					fmt.Println("declaredVarMap", declaredVarMap)
-					return false
-				}
-			}
-			// check if there is a var to assign to and that variable is already declared
-			if statement.AssignTo != "" {
-				if !declaredVarMap[statement.AssignTo] {
-					fmt.Println("Invalid assignee, var not declared: ", statement.AssignTo)
-					return false
-				}
-				// TODO: instead of setting the assignee as true in varMap, it should be done in the assignmentMap
-				declaredVarMap[statement.AssignTo] = true
-			}
-		case "function_call":
-			if !isValidFunctionCall(statement.CalledFunction, statement.Arguments, declaredFunctionsMap, declaredVarMap) {
-				return false
-			}
-
-			// // TODO: revisit the next assignment part as it should be handled in operations and not here
-			// if statement.AssignTo != "" {
-			// 	if !declaredVarMap[statement.AssignTo] {
-			// 		// check if there is a var to assign to and that variable is already declared
-			// 		fmt.Println("Invalid assignee after function call, var not declared: ", statement.AssignTo)
-			// 		return false
-			// 	}
-			// 	declaredVarMap[statement.AssignTo] = true
-			// }
+		if !isValidStatement(statement, declaredFunctionsMap, declaredVarMap) {
+			return false
 		}
 	}
 	return true
