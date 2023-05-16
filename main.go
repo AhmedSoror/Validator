@@ -45,14 +45,20 @@ type Block struct {
 
 // Statement represents an individual statement.
 type Statement struct {
-	Type             string   `json:"type"`                      // Type of statement (block, variable_declaration, operation, function_call)
-	DeclaredVariable string   `json:"variable,omitempty"`        // declared variable
-	Block            Block    `json:"block,omitempty"`           // Nested block
-	OperationType    string   `json:"operation_type,omitempty"`  // Type of operation (e.g., addition, multiplication)
-	Operands         []string `json:"Operands,omitempty"`        // List of variable used as Operands
-	CalledFunction   string   `json:"called_function,omitempty"` // function call
-	Arguments        []string `json:"arguments,omitempty"`       // List of function call parameters
-	AssignTo         string   `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
+	Type             string    `json:"type"`                      // Type of statement (block, variable_declaration, operation, function_call)
+	DeclaredVariable string    `json:"variable,omitempty"`        // declared variable
+	Block            Block     `json:"block,omitempty"`           // Nested block
+	OperationType    string    `json:"operation_type,omitempty"`  // Type of operation (e.g., addition, multiplication)
+	Operands         []Operand `json:"Operands,omitempty"`        // List of variable used as Operands
+	CalledFunction   string    `json:"called_function,omitempty"` // function call
+	Arguments        []Operand `json:"arguments,omitempty"`       // List of function call arguments
+	AssignTo         string    `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
+}
+
+type Operand struct {
+	Type      string    `json:"type"` // Type of the operand (e.g., "numerical", "variable", "function")
+	Value     string    `json:"value"`
+	Arguments []Operand `json:"arguments,omitempty"` // List of arguments for a function operand
 }
 
 // --------------------------
@@ -96,15 +102,47 @@ func (s set) append(other set) {
 	Added conditions:
 		-
 */
-
-func isValidOperand(operand string, varMap map[string]bool) bool {
-	if _, err := strconv.Atoi(operand); err != nil && !varMap[operand] {
+func isValidFunctionCall(functionName string, arguments []Operand, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
+	// to validate a function:
+	// - function is already declared
+	if !declaredFunctionsMap[functionName] {
+		fmt.Println("Invalid function call due to calling undefined function: ", functionName)
 		return false
+	}
+	// all arguments are valid operands. Note: this will recursively call this function
+	// in case one of the operands is a function call as well
+	for _, arg := range arguments {
+		if !isValidOperand(arg, declaredFunctionsMap, declaredVarMap) {
+			return false
+		}
 	}
 	return true
 }
 
-func validateBlock(block Block, functionMap map[string]bool, varMap map[string]bool) bool {
+func isValidOperand(operand Operand, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
+
+	switch operand.Type {
+	case "numerical":
+		if _, err := strconv.Atoi(operand.Value); err != nil {
+			fmt.Printf("Invalid operand, expected numerical type and value %v couldn't be converted\n", operand.Value)
+			return false
+		}
+	case "variable":
+		if !declaredVarMap[operand.Value] {
+			fmt.Printf("Invalid operand, variable: %v is not declared\n", operand.Value)
+			return false
+		}
+	case "function":
+		if !isValidFunctionCall(operand.Value, operand.Arguments, declaredFunctionsMap, declaredVarMap) {
+			fmt.Printf("Invalid operand, function: %v is not declared\n", operand.Value)
+			return false
+		}
+	}
+
+	return true
+}
+
+func verifyBlock(block Block, declaredFunctionsMap map[string]bool, declaredVarMap map[string]bool) bool {
 	/*
 		INFO: function to recursively validate a block. Conditions for validity:
 				a. A function call must call a function that is declared in the same file.
@@ -121,53 +159,47 @@ func validateBlock(block Block, functionMap map[string]bool, varMap map[string]b
 	for _, statement := range block.Statements {
 		switch statement.Type {
 		case "block":
-			if !validateBlock(statement.Block, functionMap, varMap) {
+			if !verifyBlock(statement.Block, declaredFunctionsMap, declaredVarMap) {
 				fmt.Println("Invalid block: ", statement.Block)
 				return false
 			}
 		case "variable_declaration":
-			if _, ok := varMap[statement.DeclaredVariable]; ok {
-				fmt.Println("Invalid variable declaration: ", statement.DeclaredVariable)
+			if _, ok := declaredVarMap[statement.DeclaredVariable]; ok {
+				fmt.Println("Invalid variable declaration: ", statement.DeclaredVariable, " variable already declared")
 				return false
 			}
-			varMap[statement.DeclaredVariable] = true
+			declaredVarMap[statement.DeclaredVariable] = true
 		case "operation":
 			for _, operand := range statement.Operands {
-				if !isValidOperand(operand, varMap) {
-					fmt.Println("Invalid operand", operand)
+				if !isValidOperand(operand, declaredFunctionsMap, declaredVarMap) {
+					// fmt.Println("Invalid operand", operand)
+					fmt.Println("declaredVarMap", declaredVarMap)
 					return false
 				}
 			}
-			if statement.AssignTo != "" && !varMap[statement.AssignTo] {
-				// check if there is a var to assign to and that variable is already declared
-				fmt.Println("Invalid assignee, var not declared: ", statement.AssignTo)
-				return false
-			}
+			// check if there is a var to assign to and that variable is already declared
 			if statement.AssignTo != "" {
+				if !declaredVarMap[statement.AssignTo] {
+					fmt.Println("Invalid assignee, var not declared: ", statement.AssignTo)
+					return false
+				}
 				// TODO: instead of setting the assignee as true in varMap, it should be done in the assignmentMap
-				varMap[statement.AssignTo] = true
+				declaredVarMap[statement.AssignTo] = true
 			}
 		case "function_call":
-			if _, ok := functionMap[statement.CalledFunction]; !ok {
-				fmt.Println("Invalid function call due to calling undefined function: ", statement.CalledFunction)
-				return false
-			}
-			for _, param := range statement.Arguments {
-				if !isValidOperand(param, varMap) {
-					fmt.Println("Invalid function call due to undeclared parameter: ", param)
-					return false
-				}
-			}
-			// TODO: revisit the next assignment part as it should be handled in operations and not here
-			if statement.AssignTo != "" && !varMap[statement.AssignTo] {
-				// check if there is a var to assign to and that variable is already declared
-				fmt.Println("Invalid assignee after function call, var not declared: ", statement.AssignTo)
+			if !isValidFunctionCall(statement.CalledFunction, statement.Arguments, declaredFunctionsMap, declaredVarMap) {
 				return false
 			}
 
-			if statement.AssignTo != "" {
-				varMap[statement.AssignTo] = true
-			}
+			// // TODO: revisit the next assignment part as it should be handled in operations and not here
+			// if statement.AssignTo != "" {
+			// 	if !declaredVarMap[statement.AssignTo] {
+			// 		// check if there is a var to assign to and that variable is already declared
+			// 		fmt.Println("Invalid assignee after function call, var not declared: ", statement.AssignTo)
+			// 		return false
+			// 	}
+			// 	declaredVarMap[statement.AssignTo] = true
+			// }
 		}
 	}
 	return true
@@ -188,11 +220,11 @@ func VerifyProgramRec(program Program) bool {
 
 	// for each function, init var map and calidate the function body
 	for _, function := range program.Functions {
-		varMap := make(map[string]bool)
+		declaredVarMap := make(map[string]bool)
 		for _, arg := range function.Parameters {
-			varMap[arg] = true
+			declaredVarMap[arg] = true
 		}
-		if !validateBlock(function.Body, functionMap, varMap) {
+		if !verifyBlock(function.Body, functionMap, declaredVarMap) {
 			return false
 		}
 	}
@@ -234,14 +266,18 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 		case "operation":
 			for _, operand := range statement.Operands {
 				// TODO: check on the operand type to ensure it's a var
-				usedVariables[operand] = true
+				if operand.Type == "variable" {
+					usedVariables[operand.Value] = true
+				}
 			}
 			// if statement.AssignTo != "" {
 			// 	usedVariables[statement.AssignTo] = true
 			// }
 		case "function_call":
-			for _, param := range statement.Arguments {
-				usedVariables[param] = true
+			for _, arg := range statement.Arguments {
+				if arg.Type == "variable" {
+					usedVariables[arg.Value] = true
+				}
 			}
 			// if statement.AssignTo != "" {
 			// 	usedVariables[statement.AssignTo] = true
@@ -366,7 +402,6 @@ func main() {
 		// Verify the program
 		isValid := VerifyProgramRec(program)
 		fmt.Println("Is program valid?", isValid)
-
 	case "unused_variables":
 		unusedVariables := findUnusedVariables(program)
 		fmt.Println("unusedVariables: ", unusedVariables)
