@@ -54,6 +54,35 @@ type Statement struct {
 	AssignTo         string   `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
 }
 
+// --------------------------
+// Define set structure
+// --------------------------
+// The set type is a type alias of `map[string]struct{}`
+type set map[string]struct{}
+
+// Adds a string to the set
+func (s set) add(key string) {
+	s[key] = struct{}{}
+}
+
+// Removes an animal from the set
+func (s set) remove(key string) {
+	delete(s, key)
+}
+
+// Returns a boolean value describing if the animal exists in the set
+func (s set) has(key string) bool {
+	_, ok := s[key]
+	return ok
+}
+
+// Appends two sets together
+func (s set) append(other set) {
+	for key := range other {
+		s.add(key)
+	}
+}
+
 // -----------------------------------------
 // Validate a program
 // -----------------------------------------
@@ -216,18 +245,28 @@ func traverseBlock(block Block, declaredVariables map[string]bool, usedVariables
 // -----------------------------------------
 // list functions dependancies
 // -----------------------------------------
-func findFunctionCalls(program Program) map[string][]string {
+func findFunctionCalls(program Program) map[string]set {
+	/*
+		INFO: function to populate a dictionary with 1st level function dependencies where the key: function name, val: list of called functions
+	*/
 	functionCalls := make(map[string][]string)
-
 	// Iterate over each function in the program and populate functionCalls map
 	for _, function := range program.Functions {
 		getFunctionCallsRecursively(function.Body.Statements, function.Name, functionCalls)
 	}
 
-	return functionCalls
+	rolled_out_dependancies := rollOutDependencies(functionCalls)
+
+	return rolled_out_dependancies
 }
 
 func getFunctionCallsRecursively(statements []Statement, currentFunction string, functionCalls map[string][]string) {
+	/*
+		INFO: given a function name, populate a dictionary with 1st level function dependencies where the key: function name, val: list of called functions
+	*/
+	// first add the current function to list of functions we have
+	emptyList := []string{}
+	functionCalls[currentFunction] = append(functionCalls[currentFunction], emptyList...)
 	// Traverse each statement in the function body
 	for _, statement := range statements {
 		if statement.Type == "function_call" {
@@ -235,6 +274,43 @@ func getFunctionCallsRecursively(statements []Statement, currentFunction string,
 		} else if statement.Type == "block" {
 			getFunctionCallsRecursively(statement.Block.Statements, currentFunction, functionCalls)
 		}
+	}
+}
+
+// ---------------------------------
+
+func rollOutDependencies(dependencies map[string][]string) map[string]set {
+	/*
+		INFO: given a map of key: str, value: []string which are keys as well,
+			the function rolls out the dependencies by adding the value of each key to the value list while eliminating duplicates.
+			e.g: {A:[B], B:[C], C:[D]} -> {A:[B, C, D], B:[C, D], C:[D]}
+	*/
+	rolledOut := make(map[string]set)
+
+	for key := range dependencies {
+		visited := make(map[string]bool)
+		rollOutHelper(dependencies, key, visited, rolledOut)
+	}
+
+	return rolledOut
+}
+
+func rollOutHelper(dependencies map[string][]string, key string, visited map[string]bool, rolledOut map[string]set) {
+	visited[key] = true
+
+	// first ensure that the key is initialized in the rollout map
+	// important to include functions with no dependencies
+	_, exists := rolledOut[key]
+	if !exists {
+		rolledOut[key] = set{}
+	}
+	// recursively add functions dependencies to current key
+	for _, dep := range dependencies[key] {
+		if !visited[dep] {
+			rollOutHelper(dependencies, dep, visited, rolledOut)
+		}
+		rolledOut[key].add(dep)
+		rolledOut[key].append(rolledOut[dep])
 	}
 }
 
