@@ -1,7 +1,7 @@
 {
     "functions": [
         {
-            "name": "func_1",
+            "name": "main",
             "parameters": [],
             "body": {
                 "statements": [
@@ -10,45 +10,41 @@
                         "block": {
                             "statements": [
                                 {
-                                    "type": "function_call",
-                                    "called_function": "func_2",
-                                    "arguments": [
-                                        "x"
-                                    ]
+                                    "type": "variable_declaration",
+                                    "variable": "x"
                                 }
                             ]
                         }
                     },
                     {
-                        "type": "function_call",
-                        "called_function": "func_3",
-                        "arguments": [
-                            "2",
-                            "5"
+                        "type": "operation",
+                        "operation_type": "assignment",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "x"
+                            },
+                            {
+                                "type": "function_call",
+                                "called_function": "calculateSum",
+                                "arguments": [
+                                    {
+                                        "type": "numerical",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "type": "numerical",
+                                        "value": "10"
+                                    }
+                                ]
+                            }
                         ]
                     }
                 ]
             }
         },
         {
-            "name": "func_2",
-            "parameters": [
-                "num"
-            ],
-            "body": {
-                "statements": [
-                    {
-                        "type": "function_call",
-                        "called_function": "func_3",
-                        "arguments": [
-                            "num"
-                        ]
-                    }
-                ]
-            }
-        },
-        {
-            "name": "func_3",
+            "name": "calculateSum",
             "parameters": [
                 "a",
                 "b"
@@ -56,57 +52,22 @@
             "body": {
                 "statements": [
                     {
-                        "type": "block",
-                        "block": {
-                            "statements": [
-                                {
-                                    "type": "function_call",
-                                    "called_function": "func_4",
-                                    "arguments": [
-                                        "num"
-                                    ]
-                                }
-                            ]
-                        }
+                        "type": "variable_declaration",
+                        "variable": "sum"
                     },
                     {
-                        "type": "function_call",
-                        "called_function": "func_5",
-                        "arguments": [
-                            "product"
+                        "type": "operation",
+                        "operation_type": "addition",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "a"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            }
                         ]
-                    }
-                ]
-            }
-        },
-        {
-            "name": "func_4",
-            "parameters": [
-                "value"
-            ],
-            "body": {
-                "statements": [
-                    {
-                        "type": "block",
-                        "block": {
-                            "statements": []
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "func_5",
-            "parameters": [
-                "value"
-            ],
-            "body": {
-                "statements": [
-                    {
-                        "type": "block",
-                        "block": {
-                            "statements": []
-                        }
                     }
                 ]
             }

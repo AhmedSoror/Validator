@@ -1,0 +1,199 @@
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "x"
+                                },
+                                {
+                                    "type": "function_call",
+                                    "called_function": "printNumber",
+                                    "arguments": [
+                                        {
+                                            "type": "numerical",
+                                            "variable": "5"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "function_call",
+                        "called_function": "calculateSum",
+                        "arguments": [
+                            {
+                                "type": "numerical",
+                                "value": "2"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "10"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "operation",
+                        "operation_type": "assignment",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "x"
+                            },
+                            {
+                                "type": "function_call",
+                                "called_function": "calculateSum",
+                                "arguments": [
+                                    {
+                                        "type": "numerical",
+                                        "value": "2"
+                                    },
+                                    {
+                                        "type": "numerical",
+                                        "value": "10"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "printNumber",
+            "parameters": [
+                "num"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "function_call",
+                        "called_function": "display",
+                        "arguments": [
+                            {
+                                "type": "variable",
+                                "variable": "num"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "calculateSum",
+            "parameters": [
+                "a",
+                "b"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "variable_declaration",
+                        "variable": "sum"
+                    },
+                    {
+                        "type": "operation",
+                        "operation_type": "addition",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "a"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "z"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "z"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "5"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "product"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "product"
+                                        },
+                                        {
+                                            "type": "operation",
+                                            "operation_type": "multiplication",
+                                            "operands": [
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "sum"
+                                                },
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "z"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "function_call",
+                        "called_function": "printNumber",
+                        "arguments": [
+                            {
+                                "type": "variable",
+                                "variable": "product"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "display",
+            "parameters": [
+                "value"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": []
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
