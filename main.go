@@ -441,7 +441,6 @@ func main() {
 
 /*
 TODO:
-1- function caalls with a var: var must be assigned first
 3- include unit tests for implemented functions
 4- Consistent code documentation
 5- Consistent conventions
