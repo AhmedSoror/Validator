@@ -46,6 +46,7 @@ Assumptions:
 	- variables can't be declared twice
 	- function's parameters are considered as declaration for variable and they are already assigned
 	- in Assignment operation, the assigned variable is the first variable in the operations list
+	- in Assignment operation, the parser correctly parse the input into exactly two operands where the first one is the assigned variable. Otherwise throws error
 */
 
 package main
@@ -227,7 +228,6 @@ func IsValidStatement(statement Statement, declaredFunctionsMap map[string]bool,
 		// add variable to the assignment map as false, since it now exists in the map it means it is already declared
 		assignedVarMap[statement.Variable] = false
 	case "operation":
-		// TODO: in case of assignment, ensure that the operands list has length 2
 		// we can create a separate validation function for each operation type
 		for i, operand := range statement.Operands {
 			// in assignment operation, the assigned variable is the first
