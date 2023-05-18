@@ -47,6 +47,8 @@ Assumptions:
 	- function's parameters are considered as declaration for variable and they are already assigned
 	- in Assignment operation, the assigned variable is the first variable in the operations list
 	- in Assignment operation, the parser correctly parse the input into exactly two operands where the first one is the assigned variable. Otherwise throws error
+	- When operating in function dependancies or unused variables modes, it is assumed that the program is already valid:
+		- for example the same variable is not declared twice
 */
 
 package main
@@ -147,13 +149,21 @@ func (s set) append(other set) {
 // - The function is already declared.
 // - All arguments are valid operands
 // - All variable arguments are both declared and assigned.
-func IsValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool, verbose bool) bool {
+func IsValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]int, assignedVarMap map[string]bool, verbose bool) bool {
 	// TODO: validate the arity of the function:
 	// in the funcMap, set val to function arity and check on the length of arguments
 	// ensure function is already declared
-	if !declaredFunctionsMap[functionName] {
+	arity, declared := declaredFunctionsMap[functionName]
+
+	if !declared {
 		if verbose {
 			fmt.Println("Invalid function call due to calling undefined function: ", functionName)
+		}
+		return false
+	}
+	if arity != len(arguments) {
+		if verbose {
+			fmt.Println("Invalid function call due to calling with different arity. Function: ", functionName)
 		}
 		return false
 	}
@@ -175,7 +185,7 @@ func IsValidFunctionCall(functionName string, arguments []Statement, declaredFun
 // - For variable operands, it checks if the variable is declared and assigned (unless isAssignedVar is true).
 // - For function call operands and operation operands, it recursively checks the validity of the statement using isValidStatement.
 //
-func IsValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool, verbose bool) bool {
+func IsValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap map[string]int, assignedVarMap map[string]bool, verbose bool) bool {
 	// early handle special common case: in assignment, first operand must be a var
 	if isAssignedVar && operand.Type != "variable" {
 		if verbose {
@@ -231,7 +241,7 @@ func IsValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap 
 
 // IsValidStatement checks the validity of a statement by calling the corresponding validating function
 // based on the statement type
-func IsValidStatement(statement Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool, verbose bool) bool {
+func IsValidStatement(statement Statement, declaredFunctionsMap map[string]int, assignedVarMap map[string]bool, verbose bool) bool {
 	switch statement.Type {
 	case "block":
 		if !ValidateBlock(statement.Block, declaredFunctionsMap, assignedVarMap, verbose) {
@@ -270,7 +280,7 @@ func IsValidStatement(statement Statement, declaredFunctionsMap map[string]bool,
 	return true
 }
 
-func ValidateBlock(block Block, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool, verbose bool) bool {
+func ValidateBlock(block Block, declaredFunctionsMap map[string]int, assignedVarMap map[string]bool, verbose bool) bool {
 	for _, statement := range block.Statements {
 		if !IsValidStatement(statement, declaredFunctionsMap, assignedVarMap, verbose) {
 			return false
@@ -281,10 +291,10 @@ func ValidateBlock(block Block, declaredFunctionsMap map[string]bool, assignedVa
 
 func ValidateProgramRec(program Program, verbose bool) bool {
 	// Create a map to store all function declarations
-	functionMap := make(map[string]bool)
+	functionMap := make(map[string]int)
 
 	for _, function := range program.Functions {
-		functionMap[function.Name] = true
+		functionMap[function.Name] = len(function.Parameters)
 	}
 
 	for _, function := range program.Functions {
@@ -306,6 +316,9 @@ func ValidateProgramRec(program Program, verbose bool) bool {
 // -----------------------------------------
 // list declared but unused variables
 // -----------------------------------------
+func generateFunctionVarKey(functionName string, variableName string) string {
+	return functionName + "_" + variableName
+}
 
 func UnusedVariables(program Program) []string {
 	// define a map to be populated with declared and used variables as follows:
@@ -317,9 +330,11 @@ func UnusedVariables(program Program) []string {
 	for _, function := range program.Functions {
 		// add function arguments as declared varialbes
 		for _, arg := range function.Parameters {
-			usedVariables[arg] = false
+			// usedVariables[arg] = false
+			arg_key := generateFunctionVarKey(function.Name, arg)
+			usedVariables[arg_key] = false
 		}
-		PopulateUsedVariablesInBlock(function.Body, usedVariables)
+		PopulateUsedVariablesInBlock(function.Body, function.Name, usedVariables)
 	}
 
 	unusedVariables := []string{}
@@ -339,10 +354,12 @@ func UnusedVariables(program Program) []string {
 // 	 if it is used, set the value to true. A variable is used if:
 // 		- used in an operation other than the left hand side of the assignment opertaion
 // 		- used in the argument to a function call
-func PopulateUsedVariablesInStatement(statement Statement, usedVariables map[string]bool) {
+func PopulateUsedVariablesInStatement(statement Statement, functionName string, usedVariables map[string]bool) {
 	switch statement.Type {
 	case "variable_declaration":
-		usedVariables[statement.Variable] = false
+		// usedVariables[statement.Variable] = false
+		arg_key := generateFunctionVarKey(functionName, statement.Variable)
+		usedVariables[arg_key] = false
 	case "operation":
 		for i, operand := range statement.Operands {
 			switch operand.Type {
@@ -350,12 +367,14 @@ func PopulateUsedVariablesInStatement(statement Statement, usedVariables map[str
 				// declare all variables in an operation to be used except the assigned variable
 				isAssignedVar := (i == 0 && statement.OperationType == "assignment")
 				if !isAssignedVar {
-					usedVariables[operand.Variable] = true
+					// usedVariables[operand.Variable] = true
+					arg_key := generateFunctionVarKey(functionName, operand.Variable)
+					usedVariables[arg_key] = true
 				}
 			case "function_call":
 				fallthrough
 			case "operation":
-				PopulateUsedVariablesInStatement(operand, usedVariables)
+				PopulateUsedVariablesInStatement(operand, functionName, usedVariables)
 
 			}
 		}
@@ -363,24 +382,26 @@ func PopulateUsedVariablesInStatement(statement Statement, usedVariables map[str
 		for _, arg := range statement.Arguments {
 			switch arg.Type {
 			case "variable":
-				usedVariables[arg.Variable] = true
+				// usedVariables[arg.Variable] = true
+				arg_key := generateFunctionVarKey(functionName, arg.Variable)
+				usedVariables[arg_key] = true
 			case "function_call":
 				fallthrough
 			case "operation":
-				PopulateUsedVariablesInStatement(arg, usedVariables)
+				PopulateUsedVariablesInStatement(arg, functionName, usedVariables)
 
 			}
 		}
 	case "block":
-		PopulateUsedVariablesInBlock(statement.Block, usedVariables)
+		PopulateUsedVariablesInBlock(statement.Block, functionName, usedVariables)
 	}
 
 }
 
-func PopulateUsedVariablesInBlock(block Block, usedVariables map[string]bool) {
+func PopulateUsedVariablesInBlock(block Block, functionName string, usedVariables map[string]bool) {
 	// Traverse each statement in the block
 	for _, statement := range block.Statements {
-		PopulateUsedVariablesInStatement(statement, usedVariables)
+		PopulateUsedVariablesInStatement(statement, functionName, usedVariables)
 	}
 }
 
