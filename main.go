@@ -45,7 +45,7 @@ Assumptions:
 		- operation
 	- variables can't be declared twice
 	- function's parameters are considered as declaration for variable and they are already assigned
-
+	- in Assignment operation, the assigned variable is the first variable in the operations list
 */
 
 package main
@@ -227,6 +227,8 @@ func IsValidStatement(statement Statement, declaredFunctionsMap map[string]bool,
 		// add variable to the assignment map as false, since it now exists in the map it means it is already declared
 		assignedVarMap[statement.Variable] = false
 	case "operation":
+		// TODO: in case of assignment, ensure that the operands list has length 2
+		// we can create a separate validation function for each operation type
 		for i, operand := range statement.Operands {
 			// in assignment operation, the assigned variable is the first
 			isAssignedVar := (i == 0 && statement.OperationType == "assignment")
@@ -284,19 +286,20 @@ func ValidateProgramRec(program Program) bool {
 // -----------------------------------------
 
 func UnusedVariables(program Program) []string {
-	// TODO: to save space, we can use only one map where false is decalred and true is used variable
-	declaredVariables := make(map[string]bool)
+	// define a map to be populated with declared and used variables as follows:
+	// if variable is declared, add it to the map with value: false
+	// if it is used, set the value to true
 	usedVariables := make(map[string]bool)
 
 	// Traverse each function in the program to get all used variables
 	for _, function := range program.Functions {
-		PopulateUsedVariablesInBlock(function.Body, declaredVariables, usedVariables)
+		PopulateUsedVariablesInBlock(function.Body, usedVariables)
 	}
 
 	unusedVariables := []string{}
 
 	// Check for unused variables
-	for variable := range declaredVariables {
+	for variable := range usedVariables {
 		if !usedVariables[variable] {
 			unusedVariables = append(unusedVariables, variable)
 		}
@@ -305,32 +308,51 @@ func UnusedVariables(program Program) []string {
 	return unusedVariables
 }
 
-func PopulateUsedVariablesInBlock(block Block, declaredVariables map[string]bool, usedVariables map[string]bool) {
-	// Traverse each statement in the block
-	for _, statement := range block.Statements {
-		switch statement.Type {
-		case "variable_declaration":
-			declaredVariables[statement.Variable] = true
-		case "operation":
-			for i, operand := range statement.Operands {
+// PopulateUsedVariablesInStatement populates a given map as following:
+// 	 if variable is declared, add it to the map with value: false
+// 	 if it is used, set the value to true. A variable is used if:
+// 		- used in an operation other than the left hand side of the assignment opertaion
+// 		- used in the argument to a function call
+func PopulateUsedVariablesInStatement(statement Statement, usedVariables map[string]bool) {
+	switch statement.Type {
+	case "variable_declaration":
+		usedVariables[statement.Variable] = false
+	case "operation":
+		for i, operand := range statement.Operands {
+			switch operand.Type {
+			case "variable":
 				// declare all variables in an operation to be used except the assigned variable
 				isAssignedVar := (i == 0 && statement.OperationType == "assignment")
-				if !isAssignedVar && operand.Type == "variable" {
+				if !isAssignedVar {
 					usedVariables[operand.Variable] = true
 				}
+			case "function_call":
+			case "operation":
+				PopulateUsedVariablesInStatement(operand, usedVariables)
+
 			}
-		case "function_call":
-			for _, arg := range statement.Arguments {
-				if arg.Type == "variable" {
-					usedVariables[arg.Variable] = true
-				}
-			}
-			// if statement.AssignTo != "" {
-			// 	usedVariables[statement.AssignTo] = true
-			// }
-		case "block":
-			PopulateUsedVariablesInBlock(statement.Block, declaredVariables, usedVariables)
 		}
+	case "function_call":
+		for _, arg := range statement.Arguments {
+			switch arg.Type {
+			case "variable":
+				usedVariables[arg.Variable] = true
+			case "function_call":
+			case "operation":
+				PopulateUsedVariablesInStatement(arg, usedVariables)
+
+			}
+		}
+	case "block":
+		PopulateUsedVariablesInBlock(statement.Block, usedVariables)
+	}
+
+}
+
+func PopulateUsedVariablesInBlock(block Block, usedVariables map[string]bool) {
+	// Traverse each statement in the block
+	for _, statement := range block.Statements {
+		PopulateUsedVariablesInStatement(statement, usedVariables)
 	}
 }
 
