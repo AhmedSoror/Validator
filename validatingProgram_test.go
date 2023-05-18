@@ -117,3 +117,9 @@ func TestValidateProgramRec_nestedFunctionCallUndeclaredVariable(t *testing.T) {
 	filepath := "./data/invalid/nested_function_call_undeclared_variable.json"
 	validateProgramTestCase(t, filepath, expectedResult)
 }
+
+func TestValidateProgramRec_functionCallWithInvalidArity(t *testing.T) {
+	expectedResult := false
+	filepath := "./data/invalid/function_call_with_wrong_arity.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
