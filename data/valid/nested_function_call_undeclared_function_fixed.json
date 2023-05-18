@@ -18,12 +18,34 @@
                                     "called_function": "printNumber",
                                     "arguments": [
                                         {
-                                            "type": "variable",
-                                            "variable": "x"
+                                            "type": "function_call",
+                                            "called_function": "calculateSum",
+                                            "arguments": [
+                                                {
+                                                    "type": "numerical",
+                                                    "value": "5"
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
                             ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "calculateSum",
+            "parameters": [
+                "value"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": []
                         }
                     }
                 ]

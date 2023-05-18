@@ -14,6 +14,20 @@
                                     "variable": "x"
                                 },
                                 {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "3"
+                                        }
+                                    ]
+                                },
+                                {
                                     "type": "function_call",
                                     "called_function": "printNumber",
                                     "arguments": [

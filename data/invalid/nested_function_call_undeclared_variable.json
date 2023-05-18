@@ -23,7 +23,7 @@
                                             "arguments": [
                                                 {
                                                     "type": "variable",
-                                                    "value": "a"
+                                                    "variable": "a"
                                                 }
                                             ]
                                         }
@@ -55,7 +55,7 @@
         {
             "name": "printNumber",
             "parameters": [
-                "value"
+                "x"
             ],
             "body": {
                 "statements": [

@@ -1,0 +1,26 @@
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "function_call",
+                        "called_function": "myFunction",
+                        "arguments": []
+                    }
+                ]
+            }
+        },
+        {
+            "name": "myFunction",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {}
+                ]
+            }
+        }
+    ]
+}

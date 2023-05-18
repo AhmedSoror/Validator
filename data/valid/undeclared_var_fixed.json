@@ -3,6 +3,8 @@
         {
             "name": "myFunction",
             "parameters": [
+                "arg1",
+                "arg2"
             ],
             "body": {
                 "statements": [
@@ -12,19 +14,29 @@
                             "statements": [
                                 {
                                     "type": "variable_declaration",
-                                    "variable": "x"
+                                    "variable": "result"
                                 },
                                 {
                                     "type": "operation",
-                                    "operation_type": "addition",
+                                    "operation_type": "assignment",
                                     "operands": [
                                         {
                                             "type": "variable",
-                                            "variable": "x"
+                                            "variable": "result"
                                         },
                                         {
-                                            "type": "numerical",
-                                            "value": "5"
+                                            "type": "operation",
+                                            "operation_type": "addition",
+                                            "operands": [
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "arg1"
+                                                },
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "arg2"
+                                                }
+                                            ]
                                         }
                                     ]
                                 }

@@ -2,8 +2,7 @@
     "functions": [
         {
             "name": "myFunction",
-            "parameters": [
-            ],
+            "parameters": [],
             "body": {
                 "statements": [
                     {
@@ -13,6 +12,20 @@
                                 {
                                     "type": "variable_declaration",
                                     "variable": "x"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "5"
+                                        }
+                                    ]
                                 },
                                 {
                                     "type": "operation",
