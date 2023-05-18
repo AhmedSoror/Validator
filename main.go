@@ -148,6 +148,8 @@ func (s set) append(other set) {
 // - All arguments are valid operands
 // - All variable arguments are both declared and assigned.
 func IsValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
+	// TODO: validate the arity of the function:
+	// in the funcMap, set val to function arity and check on the length of arguments
 	// ensure function is already declared
 	if !declaredFunctionsMap[functionName] {
 		fmt.Println("Invalid function call due to calling undefined function: ", functionName)
@@ -182,6 +184,7 @@ func IsValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap 
 	case "numerical":
 		if _, err := strconv.ParseFloat(operand.Value, 64); err != nil {
 			fmt.Printf("Invalid operand, expected numerical type and value %v couldn't be converted\n", operand.Value)
+			fmt.Println(operand)
 			return false
 		}
 	case "variable":
