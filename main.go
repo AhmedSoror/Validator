@@ -1,3 +1,53 @@
+/*
+----------------------
+Language description
+----------------------
+This tool deals with a simplified representation for an imperative programming language that allows static program analysis to be applied.
+The  representation is defined as follows:
+	● A program contains one or more function declarations.
+	● A function declaration contains a block specifying the function body.
+	● There are four kinds of statements: blocks, variable declarations, operations and function calls:
+			○ A block contains zero or more statements.
+			○ A variable declaration declares a variable that may be used in an operation.
+			○ An operation has zero or more variable uses.
+			○ A function call references a function declaration.
+
+----------------------
+Tool features implementd in this script:
+----------------------
+The tool expects a file specifying a program for the previously defined representation, and offers three different operations:
+	1. Verify that a program is valid. The conditions for a program to be valid are:
+		a. A function call must call a function that is declared in the same file.
+		b. A variable can only be used in operations if it has been declared in a previous statement of the same block, or in case it has been declared in
+		one of the previous statements of a surrounding block.
+
+		extra added conditions:
+		----------------
+			- Variable must be assigned before being used
+			- Function arguments are valid operands:
+				- Numerical value
+				- declared and assigned variable
+				- valid function call
+
+	2. List variables that are declared but not used.
+	3. For each function, list which other functions they depend on. A function depends on another function if it is directly or indirectly called.
+		For example, if function A calls Function B and Function B calls function C, then function A depends on both functions B and C.
+
+
+----------------------
+Assumptions:
+----------------------
+	- variables are dynamically typed
+	- operands in an operation or arguments in a function call can be:
+		- numerical
+		- variable
+		- function call
+		- operation
+	- variables can't be declared twice
+	- function's parameters are considered as declaration for variable and they are already assigned
+
+*/
+
 package main
 
 import (
@@ -21,13 +71,11 @@ type Program struct {
 
 // Function represents a function declaration.
 type Function struct {
-	// A function declaration contains a block specifying the function body.
 	/*
+		A function declaration contains a block specifying the function body.
 		Extra added info:
 			- function identifier "name"
-			- function arguments
-			- function calls
-			- declared variables in the function
+			- function Parameters
 	*/
 	Name       string   `json:"name"`       // Name of the function
 	Parameters []string `json:"parameters"` // List of function arguments
@@ -50,7 +98,6 @@ type Statement struct {
 	Operands       []Statement `json:"Operands,omitempty"`        // List of variable used as Operands
 	CalledFunction string      `json:"called_function,omitempty"` // function call
 	Arguments      []Statement `json:"arguments,omitempty"`       // List of function call arguments
-	// AssignTo       string      `json:"assign_to,omitempty"`       // Variable to assign the result of an operation
 }
 
 // --------------------------
@@ -94,26 +141,36 @@ func (s set) append(other set) {
 	Added conditions:
 		-
 */
-func isValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
-	// to validate a function:
-	// - function is already declared
+
+// IsValidFunctionCall validates a function call by checking the following conditions:
+// - The function is already declared.
+// - All arguments are valid operands
+// - All variable arguments are both declared and assigned.
+func IsValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
+	// ensure function is already declared
 	if !declaredFunctionsMap[functionName] {
 		fmt.Println("Invalid function call due to calling undefined function: ", functionName)
 		return false
 	}
-	// all arguments are valid operands. Note: this will recursively call this function
-	// in case one of the operands is a function call as well
+	// ensure that all arguments are valid operands.
+	// Note: this will recursively call this function in case one of the operands is a function call as well
 	for _, arg := range arguments {
-		// note: all argumets should be not only declared but also assigned in the assignedVarMap.
+		// note: all argumets should be both declared and assigned in the assignedVarMap.
 		// Thus second param to function call is set to false "not an assigned var"
-		if !isValidOperand(arg, false, declaredFunctionsMap, assignedVarMap) {
+		if !IsValidOperand(arg, false, declaredFunctionsMap, assignedVarMap) {
 			return false
 		}
 	}
 	return true
 }
 
-func isValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
+// isValidOperand validates an operand by checking the following conditions:
+// - If isAssignedVar is true, the operand must be of type "variable" for assignment.
+// - For numerical operands, it checks if the value can be converted to a float, integers are accepted as well.
+// - For variable operands, it checks if the variable is declared and assigned (unless isAssignedVar is true).
+// - For function call operands and operation operands, it recursively checks the validity of the statement using isValidStatement.
+//
+func IsValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
 	// early handle special common case: in assignment, first operand must be a var
 	if isAssignedVar && operand.Type != "variable" {
 		fmt.Println("Invalid operand. Expected left hand side of assignment to be variable but recieved: ", operand.Value)
@@ -122,7 +179,7 @@ func isValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap 
 
 	switch operand.Type {
 	case "numerical":
-		if _, err := strconv.Atoi(operand.Value); err != nil {
+		if _, err := strconv.ParseFloat(operand.Value, 64); err != nil {
 			fmt.Printf("Invalid operand, expected numerical type and value %v couldn't be converted\n", operand.Value)
 			return false
 		}
@@ -140,7 +197,8 @@ func isValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap 
 		}
 	case "function_call":
 	case "operation":
-		if !isValidStatement(operand, declaredFunctionsMap, assignedVarMap) {
+		// function calls and operations are statements
+		if !IsValidStatement(operand, declaredFunctionsMap, assignedVarMap) {
 			fmt.Println("Invalid operand, due to invalid statement:", operand)
 			return false
 		}
@@ -152,16 +210,12 @@ func isValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap 
 	return true
 }
 
-func isValidStatement(statement Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
-	/*
-		 Conditions for validity:
-			a. A function call must call a function that is declared in the same file.
-			b. A variable can only be used in operations if it has been declared in a previous statement of the same block,
-			or in case it has been declared in one of the previous statements of a surrounding block.
-	*/
+// IsValidStatement checks the validity of a statement by calling the corresponding validating function
+// based on the statement type
+func IsValidStatement(statement Statement, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
 	switch statement.Type {
 	case "block":
-		if !verifyBlock(statement.Block, declaredFunctionsMap, assignedVarMap) {
+		if !ValidateBlock(statement.Block, declaredFunctionsMap, assignedVarMap) {
 			fmt.Println("Invalid block: ", statement.Block)
 			return false
 		}
@@ -176,7 +230,7 @@ func isValidStatement(statement Statement, declaredFunctionsMap map[string]bool,
 		for i, operand := range statement.Operands {
 			// in assignment operation, the assigned variable is the first
 			isAssignedVar := (i == 0 && statement.OperationType == "assignment")
-			if !isValidOperand(operand, isAssignedVar, declaredFunctionsMap, assignedVarMap) {
+			if !IsValidOperand(operand, isAssignedVar, declaredFunctionsMap, assignedVarMap) {
 				return false
 			}
 		}
@@ -184,64 +238,40 @@ func isValidStatement(statement Statement, declaredFunctionsMap map[string]bool,
 		if statement.OperationType == "assignment" {
 			assignedVarMap[statement.Operands[0].Variable] = true
 		}
-		// TODO: set assigned variables in a map to be used for verification
-
-		// check if there is a var to assign to and that variable is already declared
-		// if statement.AssignTo != "" {
-		// 	if !declaredVarMap[statement.AssignTo] {
-		// 		fmt.Println("Invalid assigned, var not declared: ", statement.AssignTo)
-		// 		return false
-		// 	}
-		// 	declaredVarMap[statement.AssignTo] = true
-		// }
 	case "function_call":
-		if !isValidFunctionCall(statement.CalledFunction, statement.Arguments, declaredFunctionsMap, assignedVarMap) {
+		if !IsValidFunctionCall(statement.CalledFunction, statement.Arguments, declaredFunctionsMap, assignedVarMap) {
 			return false
 		}
 	}
 	return true
 }
 
-func verifyBlock(block Block, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
-	/*
-		INFO: function to recursively validate a block.
-		:params
-			- block Block: a block from the program
-			- functionMap map[string]bool: map contains defined functions, acts as set
-			- varMap map[string]bool: map contains variables from bigger scope passed to this block
-		:returns
-			- boolean to indicate whether the block is valide or not as defined
-
-	*/
+func ValidateBlock(block Block, declaredFunctionsMap map[string]bool, assignedVarMap map[string]bool) bool {
 	for _, statement := range block.Statements {
-		if !isValidStatement(statement, declaredFunctionsMap, assignedVarMap) {
+		if !IsValidStatement(statement, declaredFunctionsMap, assignedVarMap) {
 			return false
 		}
 	}
 	return true
 }
 
-func VerifyProgramRec(program Program) bool {
-	//--------------------
-	// A function call must call a function that is declared in the same file.
-	//--------------------
-
-	// Create a map to store function declarations
+func ValidateProgramRec(program Program) bool {
+	// Create a map to store all function declarations
 	functionMap := make(map[string]bool)
 
-	// Iterate over function declarations and populate the function map
 	for _, function := range program.Functions {
 		functionMap[function.Name] = true
 	}
 
-	// for each function, init var map and calidate the function body
 	for _, function := range program.Functions {
-		// initialize a map to help with checking declared variables (if exists in the map) and assigned variables (exits and value is true)
+		// initialize a map to help with checking declared variables and assigned variables
+		// declared variables are set to false and assigned varaiables are set to true
+		// The map is initialized with the arguments passed to the function
 		assignedVarMap := make(map[string]bool)
 		for _, arg := range function.Parameters {
 			assignedVarMap[arg] = true
 		}
-		if !verifyBlock(function.Body, functionMap, assignedVarMap) {
+		if !ValidateBlock(function.Body, functionMap, assignedVarMap) {
 			return false
 		}
 	}
@@ -253,14 +283,14 @@ func VerifyProgramRec(program Program) bool {
 // list declared but unused variables
 // -----------------------------------------
 
-func findUnusedVariables(program Program) []string {
+func UnusedVariables(program Program) []string {
 	// TODO: to save space, we can use only one map where false is decalred and true is used variable
 	declaredVariables := make(map[string]bool)
 	usedVariables := make(map[string]bool)
 
 	// Traverse each function in the program to get all used variables
 	for _, function := range program.Functions {
-		populateUsedVariablesInBlock(function.Body, declaredVariables, usedVariables)
+		PopulateUsedVariablesInBlock(function.Body, declaredVariables, usedVariables)
 	}
 
 	unusedVariables := []string{}
@@ -275,7 +305,7 @@ func findUnusedVariables(program Program) []string {
 	return unusedVariables
 }
 
-func populateUsedVariablesInBlock(block Block, declaredVariables map[string]bool, usedVariables map[string]bool) {
+func PopulateUsedVariablesInBlock(block Block, declaredVariables map[string]bool, usedVariables map[string]bool) {
 	// Traverse each statement in the block
 	for _, statement := range block.Statements {
 		switch statement.Type {
@@ -299,7 +329,7 @@ func populateUsedVariablesInBlock(block Block, declaredVariables map[string]bool
 			// 	usedVariables[statement.AssignTo] = true
 			// }
 		case "block":
-			populateUsedVariablesInBlock(statement.Block, declaredVariables, usedVariables)
+			PopulateUsedVariablesInBlock(statement.Block, declaredVariables, usedVariables)
 		}
 	}
 }
@@ -307,22 +337,22 @@ func populateUsedVariablesInBlock(block Block, declaredVariables map[string]bool
 // -----------------------------------------
 // list functions dependancies
 // -----------------------------------------
-func findFunctionCalls(program Program) map[string]set {
+func FindFunctionCalls(program Program) map[string]set {
 	/*
 		INFO: function to populate a dictionary with 1st level function dependencies where the key: function name, val: list of called functions
 	*/
 	functionCalls := make(map[string][]string)
 	// Iterate over each function in the program and populate functionCalls map
 	for _, function := range program.Functions {
-		getFunctionCallsRecursively(function.Body.Statements, function.Name, functionCalls)
+		GetFunctionCallsRecursively(function.Body.Statements, function.Name, functionCalls)
 	}
 
-	rolled_out_dependancies := rollOutDependencies(functionCalls)
+	rolled_out_dependancies := RollOutDependencies(functionCalls)
 
 	return rolled_out_dependancies
 }
 
-func getFunctionCallsRecursively(statements []Statement, currentFunction string, functionCalls map[string][]string) {
+func GetFunctionCallsRecursively(statements []Statement, currentFunction string, functionCalls map[string][]string) {
 	/*
 		INFO: given a function name, populate a dictionary with 1st level function dependencies where the key: function name, val: list of called functions
 	*/
@@ -336,21 +366,21 @@ func getFunctionCallsRecursively(statements []Statement, currentFunction string,
 		case "function_call":
 			{
 				functionCalls[currentFunction] = append(functionCalls[currentFunction], statement.CalledFunction)
-				getFunctionCallsRecursively(statement.Arguments, currentFunction, functionCalls)
+				GetFunctionCallsRecursively(statement.Arguments, currentFunction, functionCalls)
 			}
 		case "block":
 			{
-				getFunctionCallsRecursively(statement.Block.Statements, currentFunction, functionCalls)
+				GetFunctionCallsRecursively(statement.Block.Statements, currentFunction, functionCalls)
 			}
 		case "operation":
-			getFunctionCallsRecursively(statement.Operands, currentFunction, functionCalls)
+			GetFunctionCallsRecursively(statement.Operands, currentFunction, functionCalls)
 		}
 	}
 }
 
 // ---------------------------------
 
-func rollOutDependencies(dependencies map[string][]string) map[string]set {
+func RollOutDependencies(dependencies map[string][]string) map[string]set {
 	/*
 		INFO: given a map of key: str, value: []string which are keys as well,
 			the function rolls out the dependencies by adding the value of each key to the value list while eliminating duplicates.
@@ -360,13 +390,13 @@ func rollOutDependencies(dependencies map[string][]string) map[string]set {
 
 	for key := range dependencies {
 		visited := make(map[string]bool)
-		rollOutHelper(dependencies, key, visited, rolledOut)
+		RollOutHelper(dependencies, key, visited, rolledOut)
 	}
 
 	return rolledOut
 }
 
-func rollOutHelper(dependencies map[string][]string, key string, visited map[string]bool, rolledOut map[string]set) {
+func RollOutHelper(dependencies map[string][]string, key string, visited map[string]bool, rolledOut map[string]set) {
 	visited[key] = true
 
 	// first ensure that the key is initialized in the rollout map
@@ -378,7 +408,7 @@ func rollOutHelper(dependencies map[string][]string, key string, visited map[str
 	// recursively add functions dependencies to current key
 	for _, dep := range dependencies[key] {
 		if !visited[dep] {
-			rollOutHelper(dependencies, dep, visited, rolledOut)
+			RollOutHelper(dependencies, dep, visited, rolledOut)
 		}
 		rolledOut[key].add(dep)
 		rolledOut[key].append(rolledOut[dep])
@@ -425,13 +455,13 @@ func main() {
 	switch *mode {
 	case "verify":
 		// Verify the program
-		isValid := VerifyProgramRec(program)
+		isValid := ValidateProgramRec(program)
 		fmt.Println("Is program valid?", isValid)
 	case "unused_variables":
-		unusedVariables := findUnusedVariables(program)
+		unusedVariables := UnusedVariables(program)
 		fmt.Println("unusedVariables: ", unusedVariables)
 	case "functions_dependancies":
-		functions_dependancies := findFunctionCalls(program)
+		functions_dependancies := FindFunctionCalls(program)
 		fmt.Println("functions_dependancies: ", functions_dependancies)
 	default:
 		fmt.Println("Please enter a valid mode")
