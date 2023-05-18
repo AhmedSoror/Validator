@@ -315,6 +315,10 @@ func UnusedVariables(program Program) []string {
 
 	// Traverse each function in the program to get all used variables
 	for _, function := range program.Functions {
+		// add function arguments as declared varialbes
+		for _, arg := range function.Parameters {
+			usedVariables[arg] = false
+		}
 		PopulateUsedVariablesInBlock(function.Body, usedVariables)
 	}
 
