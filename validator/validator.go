@@ -110,17 +110,6 @@ func (s set) add(key string) {
 	s[key] = struct{}{}
 }
 
-// // Removes a key from the set
-// func (s set) remove(key string) {
-// 	delete(s, key)
-// }
-
-// // Returns a boolean value describing if the key exists in the set
-// func (s set) has(key string) bool {
-// 	_, ok := s[key]
-// 	return ok
-// }
-
 // Appends two sets together
 func (s set) append(other set) {
 	for key := range other {
@@ -131,22 +120,12 @@ func (s set) append(other set) {
 // -----------------------------------------
 // Validate a program
 // -----------------------------------------
-/*
-	The conditions for a program to be valid are:
-		a. A function call must call a function that is declared in the same file.
-		b. A variable can only be used in operations if it has been declared in a previous statement of the same block,
-		or in case it has been declared in one of the previous statements of a surrounding block.
-
-	Added conditions:
-		-
-*/
 
 // IsValidFunctionCall validates a function call by checking the following conditions:
 // - The function is already declared.
 // - All arguments are valid operands
 // - All variable arguments are both declared and assigned.
 func IsValidFunctionCall(functionName string, arguments []Statement, declaredFunctionsMap map[string]int, assignedVarMap map[string]bool, verbose bool) bool {
-	// TODO: validate the arity of the function:
 	// in the funcMap, set val to function arity and check on the length of arguments
 	// ensure function is already declared
 	arity, declared := declaredFunctionsMap[functionName]
@@ -473,9 +452,3 @@ func RollOutHelper(dependencies map[string][]string, key string, visited map[str
 		rolledOut[key].append(rolledOut[dep])
 	}
 }
-
-/*
-TODO:
-3- include unit tests for implemented functions
-6- code optimization / enhancements
-*/
