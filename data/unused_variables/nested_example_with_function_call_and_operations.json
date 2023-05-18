@@ -1,0 +1,57 @@
+{
+    "functions": [
+        {
+            "name": "myFunction",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "x"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "5"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "function_call",
+                                    "called_function": "printNumber",
+                                    "arguments": [
+                                        {
+                                            "type": "operation",
+                                            "operation_type": "addition",
+                                            "operands": [
+                                                {
+                                                    "type": "variable",
+                                                    "variable": "x"
+                                                },
+                                                {
+                                                    "type": "numerical",
+                                                    "value": "5"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

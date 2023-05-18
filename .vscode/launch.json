@@ -12,7 +12,7 @@
             "program": "${fileDirname}",
             "args": [
                 "-file",
-                "./data/invalid/nested_function_call_undeclared_function.json",
+                "./data/valid/nested_function_call_undeclared_variable_fixed.json",
                 "-mode",
                 "verify"
               ]

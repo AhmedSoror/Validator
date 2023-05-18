@@ -1,0 +1,23 @@
+{
+    "functions": [
+        {
+            "name": "myFunction",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "result"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
