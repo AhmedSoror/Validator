@@ -46,6 +46,10 @@
                                                             {
                                                                 "type": "variable",
                                                                 "variable": "a"
+                                                            }, 
+                                                            {
+                                                                "type": "variable",
+                                                                "variable": "a"
                                                             }
                                                         ]
                                                     }

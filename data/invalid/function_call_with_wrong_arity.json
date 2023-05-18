@@ -1,0 +1,46 @@
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "function_call",
+                                    "called_function": "calculateSum",
+                                    "arguments": [
+                                        {
+                                            "type": "numerical",
+                                            "value": "2"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "calculateSum",
+            "parameters": [
+                "a",
+                "b"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": []
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

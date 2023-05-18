@@ -1,0 +1,42 @@
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "variable_declaration",
+                        "variable": "result"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "myFunction",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "variable_declaration",
+                        "variable": "result"
+                    },
+                    {
+                        "type": "operation",
+                        "operation_type": "multiplication",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "result"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "4"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
