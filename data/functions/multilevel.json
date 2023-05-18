@@ -1,0 +1,153 @@
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "x"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        },
+                                        {
+                                            "type": "function_call",
+                                            "called_function": "calculateSum",
+                                            "arguments": [
+                                                {
+                                                    "type": "numerical",
+                                                    "value": "2"
+                                                },
+                                                {
+                                                    "type": "function_call",
+                                                    "called_function": "calculateProduct",
+                                                    "arguments": [
+                                                        {
+                                                            "type": "numerical",
+                                                            "value": "2"
+                                                        },
+                                                        {
+                                                            "type": "numerical",
+                                                            "value": "10"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "function_call",
+                                    "called_function": "printNumber",
+                                    "arguments": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "printNumber",
+            "parameters": [
+                "num"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "function_call",
+                        "called_function": "display",
+                        "arguments": [
+                            {
+                                "type": "variable",
+                                "variable": "num"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "calculateSum",
+            "parameters": [
+                "a",
+                "b"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "operation",
+                        "operation_type": "addition",
+                        "operands": [
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "calculateProduct",
+            "parameters": [
+                "a",
+                "b"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "operation",
+                        "operation_type": "addition",
+                        "operands": [
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            },
+                            {
+                                "type": "numerical",
+                                "value": "3"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "display",
+            "parameters": [
+                "value"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": []
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
