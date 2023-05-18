@@ -210,6 +210,7 @@ func IsValidOperand(operand Statement, isAssignedVar bool, declaredFunctionsMap 
 			return false
 		}
 	case "function_call":
+		fallthrough
 	case "operation":
 		// function calls and operations are statements
 		if !IsValidStatement(operand, declaredFunctionsMap, assignedVarMap, verbose) {
@@ -348,6 +349,7 @@ func PopulateUsedVariablesInStatement(statement Statement, usedVariables map[str
 					usedVariables[operand.Variable] = true
 				}
 			case "function_call":
+				fallthrough
 			case "operation":
 				PopulateUsedVariablesInStatement(operand, usedVariables)
 
@@ -359,6 +361,7 @@ func PopulateUsedVariablesInStatement(statement Statement, usedVariables map[str
 			case "variable":
 				usedVariables[arg.Variable] = true
 			case "function_call":
+				fallthrough
 			case "operation":
 				PopulateUsedVariablesInStatement(arg, usedVariables)
 
