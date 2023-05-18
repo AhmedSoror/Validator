@@ -486,7 +486,5 @@ func main() {
 /*
 TODO:
 3- include unit tests for implemented functions
-4- Consistent code documentation
-5- Consistent conventions
 6- code optimization / enhancements
 */
