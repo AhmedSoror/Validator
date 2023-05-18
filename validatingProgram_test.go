@@ -45,6 +45,41 @@ func TestValidateProgramRec_OperationAsOperand(t *testing.T) {
 	validateProgramTestCase(t, filepath, expectedResult)
 }
 
+func TestValidateProgramRec_UndeclaredFunction_fixed(t *testing.T) {
+	expectedResult := true
+	filepath := "./data/valid/undeclared_func_fixed.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+
+func TestValidateProgramRec_UndeclaredVariable_fixed(t *testing.T) {
+	expectedResult := true
+	filepath := "./data/valid/undeclared_var_fixed.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+
+func TestValidateProgramRec_UnassignedVariableInOperation_fixed(t *testing.T) {
+	expectedResult := true
+	filepath := "./data/valid/operation_with_unassigned_variable_fixed.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+
+func TestValidateProgramRec_UnassignedVariableInFunctionCall_fixed(t *testing.T) {
+	expectedResult := true
+	filepath := "./data/valid/function_call_with_unassigned_variable_fixed.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+
+func TestValidateProgramRec_nestedFunctionCallUndeclaredFunction_fixed(t *testing.T) {
+	expectedResult := true
+	filepath := "./data/valid/nested_function_call_undeclared_function_fixed.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+func TestValidateProgramRec_nestedFunctionCallUndeclaredVariable_fixed(t *testing.T) {
+	expectedResult := true
+	filepath := "./data/valid/nested_function_call_undeclared_variable_fixed.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+
 // --------------------------
 // Test invalid programs
 // --------------------------
