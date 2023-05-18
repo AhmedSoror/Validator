@@ -1,0 +1,72 @@
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "x"
+                                },
+                                {
+                                    "type": "function_call",
+                                    "called_function": "printNumber",
+                                    "arguments": [
+                                        {
+                                            "type": "function_call",
+                                            "called_function": "calculateSum",
+                                            "arguments": [
+                                                {
+                                                    "type": "variable",
+                                                    "value": "a"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "calculateSum",
+            "parameters": [
+                "a",
+                "b"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "printNumber",
+            "parameters": [
+                "value"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": []
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
