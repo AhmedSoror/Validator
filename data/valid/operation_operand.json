@@ -1,0 +1,43 @@
+{
+    "functions": [
+        {
+            "name": "calculateSum",
+            "parameters": [
+                "a",
+                "b"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "variable_declaration",
+                        "variable": "sum"
+                    },
+                    {
+                        "type": "operation",
+                        "operation_type": "addition",
+                        "operands": [
+                            {
+                                "type": "variable",
+                                "variable": "a"
+                            },
+                            {
+                                "type": "operation",
+                                "operation_type": "addition",
+                                "operands": [
+                                    {
+                                        "type": "variable",
+                                        "variable": "a"
+                                    },
+                                    {
+                                        "type": "numerical",
+                                        "value": "3"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
