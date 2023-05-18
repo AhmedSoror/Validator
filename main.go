@@ -112,16 +112,16 @@ func (s set) add(key string) {
 	s[key] = struct{}{}
 }
 
-// Removes an animal from the set
-func (s set) remove(key string) {
-	delete(s, key)
-}
+// // Removes a key from the set
+// func (s set) remove(key string) {
+// 	delete(s, key)
+// }
 
-// Returns a boolean value describing if the animal exists in the set
-func (s set) has(key string) bool {
-	_, ok := s[key]
-	return ok
-}
+// // Returns a boolean value describing if the key exists in the set
+// func (s set) has(key string) bool {
+// 	_, ok := s[key]
+// 	return ok
+// }
 
 // Appends two sets together
 func (s set) append(other set) {
