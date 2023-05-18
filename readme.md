@@ -34,3 +34,109 @@ functions B and C.
 - in Assignment operation, the parser correctly parse the input into exactly two operands where the first one is the assigned variable. Otherwise throws error
 - When operating in function dependancies or unused variables modes, it is assumed that the program is already valid:
     - for example the same variable is not declared twice
+
+
+---
+# JSON formate: 
+
+Below, you can find a sample representation for the AST of the program as json file.
+Note: sampe data are provided in the data folder
+
+```json
+{
+    "functions": [
+        {
+            "name": "main",
+            "parameters": [],
+            "body": {
+                "statements": [
+                    {
+                        "type": "block",
+                        "block": {
+                            "statements": [
+                                {
+                                    "type": "variable_declaration",
+                                    "variable": "x"
+                                },
+                                {
+                                    "type": "operation",
+                                    "operation_type": "assignment",
+                                    "operands": [
+                                        {
+                                            "type": "variable",
+                                            "variable": "x"
+                                        },
+                                        {
+                                            "type": "numerical",
+                                            "value": "10"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "function_call",
+                                    "called_function": "printNumber",
+                                    "arguments": [
+                                        {
+                                            "type": "function_call",
+                                            "called_function": "calculateSum",
+                                            "arguments": [
+                                                {
+                                                    "type": "numerical",
+                                                    "value": "2"
+                                                },
+                                                {
+                                                    "type": "numerical",
+                                                    "value": "10"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "printNumber",
+            "parameters": [
+                "num"
+            ],
+            "body": {
+                "statements": [
+                    {
+                        "type": "function_call",
+                        "called_function": "display",
+                        "arguments": [
+                            {
+                                "type": "variable",
+                                "variable": "num"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+```
+
+---
+# How to run
+- To run the tool use the following command line:
+>`go run main.go -file <json_file_path> -mode <operation_mode>`
+
+Replace the json file path, with the actual path, and the operation mode is one of the following:
+- `verify`
+- `unused_variables`
+- `functions_dependancies`
+
+ex: 
+>`go run main.go -file './data/valid/operations.json' -mode 'verify'`
+
+
+To run tests:
+> `go test -v ./validator/`
+---
