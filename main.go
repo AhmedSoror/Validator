@@ -359,25 +359,21 @@ func PopulateUsedVariablesInBlock(block Block, usedVariables map[string]bool) {
 // -----------------------------------------
 // list functions dependancies
 // -----------------------------------------
+// FindFunctionCalls populates a dictionary with 1st level function dependencies
+// 	populated map has key: function name, val: list of direct called functions
 func FindFunctionCalls(program Program) map[string]set {
-	/*
-		INFO: function to populate a dictionary with 1st level function dependencies where the key: function name, val: list of called functions
-	*/
 	functionCalls := make(map[string][]string)
 	// Iterate over each function in the program and populate functionCalls map
 	for _, function := range program.Functions {
 		GetFunctionCallsRecursively(function.Body.Statements, function.Name, functionCalls)
 	}
-
+	// unfold all dependancies
 	rolled_out_dependancies := RollOutDependencies(functionCalls)
 
 	return rolled_out_dependancies
 }
 
 func GetFunctionCallsRecursively(statements []Statement, currentFunction string, functionCalls map[string][]string) {
-	/*
-		INFO: given a function name, populate a dictionary with 1st level function dependencies where the key: function name, val: list of called functions
-	*/
 	// first add the current function to list of functions we have
 	emptyList := []string{}
 	functionCalls[currentFunction] = append(functionCalls[currentFunction], emptyList...)
@@ -400,14 +396,10 @@ func GetFunctionCallsRecursively(statements []Statement, currentFunction string,
 	}
 }
 
-// ---------------------------------
-
+// RollOutDependencies: given a map of key: str, value: []string which are keys as well,
+// the function rolls out the dependencies by adding the value of each key to the value list while eliminating duplicates.
+// e.g: {A:[B], B:[C], C:[D]} -> {A:[B, C, D], B:[C, D], C:[D]}
 func RollOutDependencies(dependencies map[string][]string) map[string]set {
-	/*
-		INFO: given a map of key: str, value: []string which are keys as well,
-			the function rolls out the dependencies by adding the value of each key to the value list while eliminating duplicates.
-			e.g: {A:[B], B:[C], C:[D]} -> {A:[B, C, D], B:[C, D], C:[D]}
-	*/
 	rolledOut := make(map[string]set)
 
 	for key := range dependencies {
@@ -421,8 +413,8 @@ func RollOutDependencies(dependencies map[string][]string) map[string]set {
 func RollOutHelper(dependencies map[string][]string, key string, visited map[string]bool, rolledOut map[string]set) {
 	visited[key] = true
 
-	// first ensure that the key is initialized in the rollout map
-	// important to include functions with no dependencies
+	// ensure that the key is initialized in the rollout map
+	// to include functions with no dependencies
 	_, exists := rolledOut[key]
 	if !exists {
 		rolledOut[key] = set{}
