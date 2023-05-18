@@ -71,3 +71,14 @@ func TestValidateProgramRec_UnassignedVariableInFunctionCall(t *testing.T) {
 	filepath := "./data/invalid/function_call_with_unassigned_variable.json"
 	validateProgramTestCase(t, filepath, expectedResult)
 }
+
+func TestValidateProgramRec_nestedFunctionCallUndeclaredFunction(t *testing.T) {
+	expectedResult := false
+	filepath := "./data/invalid/nested_function_call_undeclared_function.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
+func TestValidateProgramRec_nestedFunctionCallUndeclaredVariable(t *testing.T) {
+	expectedResult := false
+	filepath := "./data/invalid/nested_function_call_undeclared_variable.json"
+	validateProgramTestCase(t, filepath, expectedResult)
+}
